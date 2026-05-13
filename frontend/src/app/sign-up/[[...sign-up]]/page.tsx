@@ -1,0 +1,9 @@
+import { SignUp } from '@clerk/nextjs'
+
+export default function SignUpPage() {
+  return (
+    <main className="min-h-[calc(100vh-52px)] flex items-center justify-center py-12 px-4">
+      <SignUp />
+    </main>
+  )
+}

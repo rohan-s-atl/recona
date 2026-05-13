@@ -1,0 +1,38 @@
+merchant_id,merchant_name,product_line,product_name,fee_type,rate_type,contracted_rate,effective_date,notes
+MID-4471823901,Tony's Pizzeria,Apex POS,Apex POS Core,Monthly Platform Fee,flat,49.95,2023-06-01,
+MID-4471823901,Tony's Pizzeria,FlowPay,FlowPay Processing,Merchant Processing Fee,percentage,2.30,2023-06-01,% of gross monthly volume
+MID-4471823901,Tony's Pizzeria,ShieldNet,ShieldNet Basic,PCI Compliance Fee,flat,9.95,2023-06-01,
+MID-6830294751,Riverside Barbershop,Apex POS,Apex POS Lite,Monthly Platform Fee,flat,14.95,2023-03-15,
+MID-6830294751,Riverside Barbershop,FlowPay,FlowPay Processing,Merchant Processing Fee,percentage,2.60,2023-03-15,
+MID-6830294751,Riverside Barbershop,ShieldNet,ShieldNet Basic,PCI Compliance Fee,flat,9.95,2023-03-15,
+MID-9120583642,Green Valley Market,Apex POS,Apex POS Pro,Monthly Platform Fee,flat,84.95,2022-11-01,Upgraded from Core Nov 2022
+MID-9120583642,Green Valley Market,FlowPay,FlowPay Processing,Merchant Processing Fee,percentage,1.90,2022-11-01,Volume discount negotiated
+MID-9120583642,Green Valley Market,ShieldNet,ShieldNet Advanced,PCI Compliance Fee,flat,24.95,2022-11-01,Upgraded to Advanced for card-present volume
+MID-9120583642,Green Valley Market,InsightIQ,InsightIQ Standard,Monthly Analytics Fee,flat,24.95,2023-01-15,
+MID-3385719204,Sunrise Nail Studio,Apex POS,Apex POS Lite,Monthly Platform Fee,flat,14.95,2023-08-20,
+MID-3385719204,Sunrise Nail Studio,FlowPay,FlowPay Processing,Merchant Processing Fee,percentage,2.60,2023-08-20,
+MID-3385719204,Sunrise Nail Studio,LoyaltyLoop,LoyaltyLoop Starter,Monthly Loyalty Fee,flat,14.99,2023-08-20,Enrolled at signup
+MID-7742016385,Harbor Coffee Roasters,Apex POS,Apex POS Core,Monthly Platform Fee,flat,49.95,2022-04-01,
+MID-7742016385,Harbor Coffee Roasters,FlowPay,FlowPay Processing,Merchant Processing Fee,percentage,2.30,2022-04-01,
+MID-7742016385,Harbor Coffee Roasters,ShieldNet,ShieldNet Basic,PCI Compliance Fee,flat,9.95,2022-04-01,
+MID-7742016385,Harbor Coffee Roasters,LoyaltyLoop,LoyaltyLoop Starter,Monthly Loyalty Fee,flat,14.99,2023-09-01,Added post-signup
+MID-8867254139,Peak Fitness & Wellness,Apex POS,Apex POS Core,Monthly Platform Fee,flat,49.95,2023-02-01,
+MID-8867254139,Peak Fitness & Wellness,FlowPay,FlowPay Processing,Merchant Processing Fee,percentage,2.30,2023-02-01,
+MID-8867254139,Peak Fitness & Wellness,ShieldNet,ShieldNet Basic,PCI Compliance Fee,flat,9.95,2023-02-01,
+MID-8867254139,Peak Fitness & Wellness,InsightIQ,InsightIQ Standard,Monthly Analytics Fee,flat,24.95,2023-05-01,Added for membership analytics
+MID-5519382047,Sunset Auto Parts,Apex POS,Apex POS Pro,Monthly Platform Fee,flat,84.95,2021-09-01,
+MID-5519382047,Sunset Auto Parts,FlowPay,FlowPay Processing,Merchant Processing Fee,percentage,1.90,2021-09-01,
+MID-5519382047,Sunset Auto Parts,ShieldNet,ShieldNet Basic,PCI Compliance Fee,flat,9.95,2021-09-01,
+MID-5519382047,Sunset Auto Parts,WebCharge,WebCharge Terminal,Virtual Terminal Fee,flat,15.00,2022-03-01,Phone orders
+MID-1193548720,Blue Moon Bakery,Apex POS,Apex POS Core,Monthly Platform Fee,flat,49.95,2023-07-10,
+MID-1193548720,Blue Moon Bakery,FlowPay,FlowPay Processing,Merchant Processing Fee,percentage,2.30,2023-07-10,
+MID-1193548720,Blue Moon Bakery,ShieldNet,ShieldNet Basic,PCI Compliance Fee,flat,9.95,2023-07-10,
+MID-6604831957,Tech Repair Hub,Apex POS,Apex POS Lite,Monthly Platform Fee,flat,14.95,2024-01-15,Onboarded mid-January — pro-rate applies
+MID-6604831957,Tech Repair Hub,FlowPay,FlowPay Processing,Merchant Processing Fee,percentage,2.60,2024-01-15,
+MID-6604831957,Tech Repair Hub,WebCharge,WebCharge Terminal,Virtual Terminal Fee,flat,15.00,2024-01-15,
+MID-2204967831,Coastal Boutique,Apex POS,Apex POS Lite,Monthly Platform Fee,flat,14.95,2022-06-01,ACCOUNT CLOSED 2023-12-28
+MID-2204967831,Coastal Boutique,ShieldNet,ShieldNet Basic,PCI Compliance Fee,flat,9.95,2022-06-01,ACCOUNT CLOSED 2023-12-28
+MID-7823049156,Meridian Hotel Group,Nexus Commerce,Nexus Commerce Enterprise,Enterprise Platform Fee,flat,2500.00,2021-03-01,Multi-property hotel group — custom contract
+MID-7823049156,Meridian Hotel Group,FlowPay,FlowPay Enterprise,Merchant Processing Fee,percentage,1.50,2021-03-01,Enterprise rate negotiated
+MID-4419827364,First Community Bank,ClearCore,ClearCore Banking Suite,Core Banking License,flat,8500.00,2020-07-01,Annual contract — monthly billing
+MID-4419827364,First Community Bank,ClearCore,ClearCore Compliance Module,Regulatory Reporting Fee,flat,1200.00,2020-07-01,BSA/AML reporting module

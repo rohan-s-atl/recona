@@ -1,0 +1,34 @@
+invoice_id,merchant_id,merchant_dba,product_line,product_description,fee_category,billed_amount,invoice_date,statement_period,payment_status,notes
+INV-24-10881,MID-4471823901,Tony's Pizzeria,Apex POS,Apex POS Core,Platform Fee,49.95,02/01/2024,January 2024,Collected,
+INV-24-10882,MID-4471823901,Tony's Pizzeria,FlowPay,FlowPay Processing,Processing Fee,324.91,02/01/2024,January 2024,Collected,RATE MISMATCH: billed at 2.60% — contracted 2.30% — overcharge of $37.49
+INV-24-10883,MID-4471823901,Tony's Pizzeria,ShieldNet,ShieldNet Basic,Compliance Fee,9.95,02/01/2024,January 2024,Collected,
+INV-24-10884,MID-6830294751,Riverside Barber Shop,Apex POS,Apex POS Lite,Platform Fee,14.95,02/01/2024,January 2024,Collected,NAME VARIATION: "Barber Shop" two words vs "Barbershop" one word
+INV-24-10885,MID-6830294751,Riverside Barber Shop,FlowPay,FlowPay Processing,Processing Fee,54.08,02/01/2024,January 2024,Collected,
+INV-24-10886,MID-6830294751,Riverside Barber Shop,ShieldNet,ShieldNet Basic,Compliance Fee,9.95,02/01/2024,January 2024,Collected,
+INV-24-10887,MID-9120583642,Green Valley Market,Apex POS,Apex POS Core,Platform Fee,49.95,02/01/2024,January 2024,Collected,PLAN MISMATCH: contracted Apex POS Pro ($84.95) — billed Core ($49.95) — $35.00 underbilled
+INV-24-10888,MID-9120583642,Green Valley Market,FlowPay,FlowPay Processing,Processing Fee,892.17,02/01/2024,January 2024,Collected,
+INV-24-10889,MID-9120583642,Green Valley Market,ShieldNet,ShieldNet Advanced,Compliance Fee,24.95,02/01/2024,January 2024,Collected,
+INV-24-10890,MID-9120583642,Green Valley Market,InsightIQ,InsightIQ Analytics,Analytics Fee,24.95,02/01/2024,January 2024,Collected,PRODUCT NAME VARIATION: "Analytics" vs "Standard"
+INV-24-10891,MID-3385719204,Sunrise Nail Studio,Apex POS,Apex POS Lite,Platform Fee,14.95,02/01/2024,January 2024,Collected,
+INV-24-10892,MID-3385719204,Sunrise Nail Studio,FlowPay,FlowPay Processing,Processing Fee,104.00,02/01/2024,January 2024,Collected,
+INV-24-10893,MID-7742016385,Harbor Coffee,Apex POS,Apex POS Core,Platform Fee,49.95,02/01/2024,January 2024,Collected,NAME VARIATION: "Harbor Coffee" vs "Harbor Coffee Roasters"
+INV-24-10894,MID-7742016385,Harbor Coffee,FlowPay,FlowPay Processing,Processing Fee,441.80,02/01/2024,January 2024,Collected,
+INV-24-10895,MID-7742016385,Harbor Coffee,ShieldNet,ShieldNet Basic,Compliance Fee,9.95,02/01/2024,January 2024,Collected,
+INV-24-10896,MID-7742016385,Harbor Coffee,LoyaltyLoop,LoyaltyLoop Starter,Loyalty Fee,14.99,02/01/2024,January 2024,Collected,
+INV-24-10897,MID-8867254139,Peak Fitness,Apex POS,Apex POS Core,Platform Fee,49.95,02/01/2024,January 2024,Collected,NAME VARIATION: "Peak Fitness" vs "Peak Fitness & Wellness"
+INV-24-10898,MID-8867254139,Peak Fitness,FlowPay,FlowPay Processing,Processing Fee,172.56,02/01/2024,January 2024,Collected,
+INV-24-10899,MID-8867254139,Peak Fitness,ShieldNet,ShieldNet Basic,Compliance Fee,9.95,02/01/2024,January 2024,Collected,
+INV-24-10900,MID-5519382047,Sunset Auto Parts,Apex POS,Apex POS Pro,Platform Fee,84.95,02/01/2024,January 2024,Collected,
+INV-24-10901,MID-5519382047,Sunset Auto Parts,FlowPay,FlowPay Processing,Processing Fee,214.52,02/01/2024,January 2024,Collected,
+INV-24-10902,MID-5519382047,Sunset Auto Pts,ShieldNet,ShieldNet Basic,Compliance Fee,9.95,02/01/2024,January 2024,Collected,NAME VARIATION: "Sunset Auto Pts" abbreviation
+INV-24-10903,MID-1193548720,Blue Moon Bakery,Apex POS,Apex POS Core,Platform Fee,49.95,02/01/2024,January 2024,Collected,
+INV-24-10904,MID-1193548720,Blue Moon Bakery,FlowPay,FlowPay Processing,Processing Fee,388.75,02/01/2024,January 2024,Collected,
+INV-24-10905,MID-6604831957,Tech Repair Hub,Apex POS,Apex POS Lite,Platform Fee,14.95,02/01/2024,January 2024,Collected,PRO-RATE ERROR: billed full $14.95 — should be $7.23 for 17/31 days — overcharge $7.72
+INV-24-10906,MID-6604831957,Tech Repair Hub,FlowPay,FlowPay Processing,Processing Fee,21.89,02/01/2024,January 2024,Collected,
+INV-24-10907,MID-7823049156,Meridian Hotel Grp,Nexus Commerce,Nexus Commerce Enterprise,Platform Fee,2250.00,02/01/2024,January 2024,Collected,AMOUNT MISMATCH: billed $2,250 — contracted $2,500 — $250 underbilled
+INV-24-10908,MID-7823049156,Meridian Hotel Grp,FlowPay,FlowPay Enterprise,Processing Fee,3127.50,02/01/2024,January 2024,Collected,
+INV-24-10909,MID-4419827364,First Community Bancorp,ClearCore,ClearCore Banking Platform,Platform Fee,8500.00,02/01/2024,January 2024,Collected,NAME VARIATION: "Bancorp" vs "Bank" — product name variation "Banking Platform" vs "Banking Suite"
+INV-24-10910,MID-2204967831,Coastal Boutique,Apex POS,Apex POS Lite,Platform Fee,14.95,02/01/2024,January 2024,Collected,OVERBILLED: account closed 2023-12-28 — full month billed
+INV-24-10911,MID-2204967831,Coastal Boutique,ShieldNet,ShieldNet Basic,Compliance Fee,9.95,02/01/2024,January 2024,Collected,OVERBILLED: account closed 2023-12-28
+INV-24-10912,MID-0039471628,Lakeside Fresh Market,Apex POS,Apex POS Core,Platform Fee,49.95,02/01/2024,January 2024,Collected,PHANTOM: merchant not in product system — duplicate account or billing error
+INV-24-10913,MID-0039471628,Lakeside Fresh Market,FlowPay,FlowPay Processing,Processing Fee,136.40,02/01/2024,January 2024,Collected,PHANTOM: no corresponding charge record

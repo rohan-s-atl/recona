@@ -1,0 +1,36 @@
+charge_id,merchant_id,merchant_name,product_line,product_name,fee_type,contracted_rate,transaction_volume,amount,billing_month,account_status,notes
+CHG-2024-001,MID-4471823901,Tony's Pizzeria,Apex POS,Apex POS Core,Monthly Platform Fee,49.95,,49.95,2024-01,Active,
+CHG-2024-002,MID-4471823901,Tony's Pizzeria,FlowPay,FlowPay Processing,Merchant Processing Fee,2.30%,12496.52,287.42,2024-01,Active,2.30% of $12,496.52 gross volume
+CHG-2024-003,MID-4471823901,Tony's Pizzeria,ShieldNet,ShieldNet Basic,PCI Compliance Fee,9.95,,9.95,2024-01,Active,
+CHG-2024-004,MID-6830294751,Riverside Barbershop,Apex POS,Apex POS Lite,Monthly Platform Fee,14.95,,14.95,2024-01,Active,
+CHG-2024-005,MID-6830294751,Riverside Barbershop,FlowPay,FlowPay Processing,Merchant Processing Fee,2.60%,2080.00,54.08,2024-01,Active,2.60% of $2,080.00 gross volume
+CHG-2024-006,MID-6830294751,Riverside Barbershop,ShieldNet,ShieldNet Basic,PCI Compliance Fee,9.95,,9.95,2024-01,Active,
+CHG-2024-007,MID-9120583642,Green Valley Market,Apex POS,Apex POS Pro,Monthly Platform Fee,84.95,,84.95,2024-01,Active,
+CHG-2024-008,MID-9120583642,Green Valley Market,FlowPay,FlowPay Processing,Merchant Processing Fee,1.90%,46956.32,892.17,2024-01,Active,1.90% of $46,956.32 gross volume
+CHG-2024-009,MID-9120583642,Green Valley Market,ShieldNet,ShieldNet Advanced,PCI Compliance Fee,24.95,,24.95,2024-01,Active,
+CHG-2024-010,MID-9120583642,Green Valley Market,InsightIQ,InsightIQ Standard,Monthly Analytics Fee,24.95,,24.95,2024-01,Active,
+CHG-2024-011,MID-3385719204,Sunrise Nail Studio,Apex POS,Apex POS Lite,Monthly Platform Fee,14.95,,14.95,2024-01,Active,
+CHG-2024-012,MID-3385719204,Sunrise Nail Studio,FlowPay,FlowPay Processing,Merchant Processing Fee,2.60%,4000.00,104.00,2024-01,Active,2.60% of $4,000.00 gross volume
+CHG-2024-013,MID-3385719204,Sunrise Nail Studio,LoyaltyLoop,LoyaltyLoop Starter,Monthly Loyalty Fee,14.99,,14.99,2024-01,Active,
+CHG-2024-014,MID-7742016385,Harbor Coffee Roasters,Apex POS,Apex POS Core,Monthly Platform Fee,49.95,,49.95,2024-01,Active,
+CHG-2024-015,MID-7742016385,Harbor Coffee Roasters,FlowPay,FlowPay Processing,Merchant Processing Fee,2.30%,19208.70,441.80,2024-01,Active,2.30% of $19,208.70 gross volume
+CHG-2024-016,MID-7742016385,Harbor Coffee Roasters,ShieldNet,ShieldNet Basic,PCI Compliance Fee,9.95,,9.95,2024-01,Active,
+CHG-2024-017,MID-7742016385,Harbor Coffee Roasters,LoyaltyLoop,LoyaltyLoop Starter,Monthly Loyalty Fee,14.99,,14.99,2024-01,Active,
+CHG-2024-018,MID-8867254139,Peak Fitness & Wellness,Apex POS,Apex POS Core,Monthly Platform Fee,49.95,,49.95,2024-01,Active,
+CHG-2024-019,MID-8867254139,Peak Fitness & Wellness,FlowPay,FlowPay Processing,Merchant Processing Fee,2.30%,7502.61,172.56,2024-01,Active,2.30% of $7,502.61 gross volume
+CHG-2024-020,MID-8867254139,Peak Fitness & Wellness,ShieldNet,ShieldNet Basic,PCI Compliance Fee,9.95,,9.95,2024-01,Active,
+CHG-2024-021,MID-8867254139,Peak Fitness & Wellness,InsightIQ,InsightIQ Standard,Monthly Analytics Fee,24.95,,24.95,2024-01,Active,
+CHG-2024-022,MID-5519382047,Sunset Auto Parts,Apex POS,Apex POS Pro,Monthly Platform Fee,84.95,,84.95,2024-01,Active,
+CHG-2024-023,MID-5519382047,Sunset Auto Parts,FlowPay,FlowPay Processing,Merchant Processing Fee,1.90%,11290.53,214.52,2024-01,Active,1.90% of $11,290.53 gross volume
+CHG-2024-024,MID-5519382047,Sunset Auto Parts,ShieldNet,ShieldNet Basic,PCI Compliance Fee,9.95,,9.95,2024-01,Active,
+CHG-2024-025,MID-5519382047,Sunset Auto Parts,WebCharge,WebCharge Terminal,Virtual Terminal Fee,15.00,,15.00,2024-01,Active,
+CHG-2024-026,MID-1193548720,Blue Moon Bakery,Apex POS,Apex POS Core,Monthly Platform Fee,49.95,,49.95,2024-01,Active,
+CHG-2024-027,MID-1193548720,Blue Moon Bakery,FlowPay,FlowPay Processing,Merchant Processing Fee,2.30%,16902.17,388.75,2024-01,Active,2.30% of $16,902.17 gross volume
+CHG-2024-028,MID-1193548720,Blue Moon Bakery,ShieldNet,ShieldNet Basic,PCI Compliance Fee,9.95,,9.95,2024-01,Active,
+CHG-2024-029,MID-6604831957,Tech Repair Hub,Apex POS,Apex POS Lite,Monthly Platform Fee,14.95,,7.23,2024-01,Active,Pro-rated: onboarded Jan 15 — 17/31 days = $7.23
+CHG-2024-030,MID-6604831957,Tech Repair Hub,FlowPay,FlowPay Processing,Merchant Processing Fee,2.60%,842.00,21.89,2024-01,Active,2.60% of $842.00 — partial month volume
+CHG-2024-031,MID-6604831957,Tech Repair Hub,WebCharge,WebCharge Terminal,Virtual Terminal Fee,15.00,,7.66,2024-01,Active,Pro-rated: 17/31 days = $7.66
+CHG-2024-032,MID-7823049156,Meridian Hotel Group,Nexus Commerce,Nexus Commerce Enterprise,Enterprise Platform Fee,2500.00,,2500.00,2024-01,Active,Custom enterprise contract
+CHG-2024-033,MID-7823049156,Meridian Hotel Group,FlowPay,FlowPay Enterprise,Merchant Processing Fee,1.50%,208500.00,3127.50,2024-01,Active,1.50% of $208,500 gross volume — hotel + F&B
+CHG-2024-034,MID-4419827364,First Community Bank,ClearCore,ClearCore Banking Suite,Core Banking License,8500.00,,8500.00,2024-01,Active,Monthly billing on annual contract
+CHG-2024-035,MID-4419827364,First Community Bank,ClearCore,ClearCore Compliance Module,Regulatory Reporting Fee,1200.00,,1200.00,2024-01,Active,BSA/AML module
