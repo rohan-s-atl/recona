@@ -12,7 +12,7 @@ export default async function AuditPage() {
 
   if (!isAdmin) {
     return (
-      <main className="max-w-2xl mx-auto px-6 py-20 text-center">
+      <main className="mx-auto max-w-[1800px] px-6 py-20 text-center lg:px-10">
         <Shield className="w-10 h-10 text-gray-300 mx-auto mb-4" />
         <p className="text-gray-700 font-semibold text-lg">Admin access required</p>
         <p className="text-sm text-gray-400 mt-2 max-w-sm mx-auto">
@@ -20,7 +20,7 @@ export default async function AuditPage() {
           or set <code className="bg-gray-100 px-1 rounded">publicMetadata.role = &quot;admin&quot;</code> in the Clerk dashboard.
         </p>
         <Link href="/" className="mt-6 inline-flex text-sm text-blue-600 hover:underline">
-          ← Back to dashboard
+          Back to dashboard
         </Link>
       </main>
     )
@@ -30,11 +30,11 @@ export default async function AuditPage() {
   const entries = configured ? await getAuditLog({ limit: 500, ...getDataScope() }) : []
 
   return (
-    <main className="max-w-6xl mx-auto px-6 py-10">
-      <div className="flex items-center justify-between mb-8">
+    <main className="mx-auto max-w-[1800px] px-6 py-7 lg:px-10">
+      <div className="mb-5 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Audit log</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900">Audit log</h1>
+          <p className="mt-1 text-[15px] text-gray-500">
             Non-deletable record of every action taken in Recona.
           </p>
         </div>

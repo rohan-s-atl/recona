@@ -291,7 +291,7 @@ export default function UploadPage() {
   // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <main className="max-w-6xl mx-auto px-6 py-10">
+    <main className="mx-auto max-w-[1800px] px-6 py-7 lg:px-10">
       {/* Step indicator */}
       <div className="flex items-center gap-2 mb-8 flex-wrap">
         {STEPS.map((s, i) => (

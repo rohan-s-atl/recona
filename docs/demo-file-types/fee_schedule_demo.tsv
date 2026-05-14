@@ -1,0 +1,5 @@
+merchant_id	merchant_name	product_line	product_name	fee_type	rate_type	contracted_rate	effective_date
+MID-1001	Northstar Coffee	Apex POS	Apex POS Pro	Monthly software	flat	199.00	2026-01-01
+MID-1002	Harbor Books	FlowPay	FlowPay Processing	Processing	percentage	3.10	2026-01-01
+MID-1003	Cedar Fitness	ShieldNet	ShieldNet Core	Security add-on	flat	89.00	2026-01-01
+MID-1005	Metro Salon	LoyaltyLoop	LoyaltyLoop Starter	Loyalty	flat	59.00	2026-01-01

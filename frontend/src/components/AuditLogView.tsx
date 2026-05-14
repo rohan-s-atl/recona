@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Download, Search } from 'lucide-react'
 import { exportToCsv, cn } from '@/lib/utils'
 import type { AuditLogEntry } from '@/lib/db'
@@ -14,17 +14,77 @@ const ACTION_LABEL: Record<string, string> = {
   run_viewed: 'Run viewed',
 }
 
+const ACTION_STYLE: Record<string, string> = {
+  file_uploaded: 'bg-blue-100/80 text-blue-700',
+  fee_schedule_uploaded: 'bg-emerald-100/80 text-emerald-700',
+  teammate_invited: 'bg-violet-100/80 text-violet-700',
+  reconciliation_run_created: 'bg-indigo-100/80 text-indigo-700',
+  export_downloaded: 'bg-amber-100/80 text-amber-700',
+  run_viewed: 'bg-gray-100/80 text-gray-600',
+}
+
 function formatAction(action: string): string {
   return ACTION_LABEL[action] ?? action.replace(/_/g, ' ')
 }
 
 function formatMetadata(meta: Record<string, unknown> | null): string {
   if (!meta) return '-'
-  const parts: string[] = []
-  if (meta.discrepancy_count != null) parts.push(`${meta.discrepancy_count} discrepancies`)
-  if (meta.total_amount_at_risk != null)
-    parts.push(`$${Number(meta.total_amount_at_risk).toFixed(2)} at risk`)
-  return parts.length > 0 ? parts.join(' - ') : JSON.stringify(meta)
+
+  const filename = stringValue(meta.filename)
+  const role = stringValue(meta.role)
+  const rowCount = numberValue(meta.row_count ?? meta.record_count)
+  const sizeBytes = numberValue(meta.size_bytes)
+  const columnCount = numberValue(meta.column_count)
+  const productCount = numberValue(meta.product_count)
+  const merchantCount = numberValue(meta.merchant_count)
+  const discrepancyCount = numberValue(meta.discrepancy_count)
+  const totalAtRisk = numberValue(meta.total_amount_at_risk)
+
+  if (discrepancyCount != null || totalAtRisk != null) {
+    return [
+      discrepancyCount != null ? `${discrepancyCount.toLocaleString()} discrepancies` : null,
+      totalAtRisk != null ? `$${totalAtRisk.toLocaleString(undefined, { maximumFractionDigits: 2 })} at risk` : null,
+    ]
+      .filter(Boolean)
+      .join(' - ')
+  }
+
+  if (filename) {
+    return [
+      role ? `${role} file` : 'file',
+      filename,
+      rowCount != null ? `${rowCount.toLocaleString()} rows` : null,
+      columnCount != null ? `${columnCount} columns` : null,
+      sizeBytes != null ? `${Math.round(sizeBytes / 1024).toLocaleString()} KB` : null,
+    ]
+      .filter(Boolean)
+      .join(' - ')
+  }
+
+  if (productCount != null || merchantCount != null) {
+    return [
+      merchantCount != null ? `${merchantCount.toLocaleString()} merchants` : null,
+      productCount != null ? `${productCount.toLocaleString()} products` : null,
+      rowCount != null ? `${rowCount.toLocaleString()} records` : null,
+    ]
+      .filter(Boolean)
+      .join(' - ')
+  }
+
+  return Object.entries(meta)
+    .slice(0, 4)
+    .map(([key, value]) => `${key}: ${String(value)}`)
+    .join(' - ')
+}
+
+function stringValue(value: unknown): string | null {
+  return typeof value === 'string' && value.trim() ? value : null
+}
+
+function numberValue(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value
+  if (typeof value === 'string' && value.trim() && Number.isFinite(Number(value))) return Number(value)
+  return null
 }
 
 interface AuditLogViewProps {
@@ -36,6 +96,8 @@ export function AuditLogView({ entries }: AuditLogViewProps) {
   const [userFilter, setUserFilter] = useState('')
   const [fromDate, setFromDate] = useState('')
   const [toDate, setToDate] = useState('')
+  const [pageSize, setPageSize] = useState(50)
+  const [page, setPage] = useState(1)
 
   const uniqueActions = useMemo(() => {
     const s = new Set(entries.map((e) => e.action))
@@ -51,6 +113,15 @@ export function AuditLogView({ entries }: AuditLogViewProps) {
       return true
     })
   }, [entries, actionFilter, userFilter, fromDate, toDate])
+
+  const totalPages = Math.max(Math.ceil(filtered.length / pageSize), 1)
+  const safePage = Math.min(page, totalPages)
+  const start = (safePage - 1) * pageSize
+  const visible = filtered.slice(start, start + pageSize)
+
+  function resetPaging() {
+    setPage(1)
+  }
 
   function handleExport() {
     exportToCsv(
@@ -69,148 +140,236 @@ export function AuditLogView({ entries }: AuditLogViewProps) {
 
   return (
     <div className="space-y-4">
-      {/* Filters */}
-      <div className="glass rounded-2xl p-4 flex flex-wrap items-end gap-3">
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Action</label>
-          <select
-            value={actionFilter}
-            onChange={(e) => setActionFilter(e.target.value)}
-            className="text-sm bg-white/60 backdrop-blur-sm border border-white/60 rounded-lg px-3 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-          >
-            {uniqueActions.map((a) => (
-              <option key={a} value={a}>
-                {a === 'all' ? 'All actions' : formatAction(a)}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="glass rounded-xl p-4">
+        <div className="grid gap-3 xl:grid-cols-[220px_minmax(260px,1fr)_170px_170px_auto] xl:items-end">
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Action</span>
+            <select
+              value={actionFilter}
+              onChange={(e) => {
+                setActionFilter(e.target.value)
+                resetPaging()
+              }}
+              className="h-10 rounded-lg border border-white/60 bg-white/70 px-3 text-[15px] text-gray-700 outline-none focus:ring-2 focus:ring-blue-500/40"
+            >
+              {uniqueActions.map((a) => (
+                <option key={a} value={a}>
+                  {a === 'all' ? 'All actions' : formatAction(a)}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">User ID</label>
-          <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">User ID</span>
+            <span className="relative">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Filter by user..."
+                value={userFilter}
+                onChange={(e) => {
+                  setUserFilter(e.target.value)
+                  resetPaging()
+                }}
+                className="h-10 w-full rounded-lg border border-white/60 bg-white/70 pl-9 pr-3 text-[15px] text-gray-700 outline-none focus:ring-2 focus:ring-blue-500/40"
+              />
+            </span>
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">From</span>
             <input
-              type="text"
-              placeholder="Filter by user..."
-              value={userFilter}
-              onChange={(e) => setUserFilter(e.target.value)}
-              className="text-sm pl-8 pr-3 py-1.5 bg-white/60 backdrop-blur-sm border border-white/60 rounded-lg text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 w-52"
+              type="date"
+              value={fromDate}
+              onChange={(e) => {
+                setFromDate(e.target.value)
+                resetPaging()
+              }}
+              className="h-10 rounded-lg border border-white/60 bg-white/70 px-3 text-[15px] text-gray-700 outline-none focus:ring-2 focus:ring-blue-500/40"
             />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">To</span>
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => {
+                setToDate(e.target.value)
+                resetPaging()
+              }}
+              className="h-10 rounded-lg border border-white/60 bg-white/70 px-3 text-[15px] text-gray-700 outline-none focus:ring-2 focus:ring-blue-500/40"
+            />
+          </label>
+
+          <div className="flex items-center justify-end gap-3">
+            <span className="whitespace-nowrap text-sm text-gray-400">{filtered.length.toLocaleString()} entries</span>
+            <button
+              onClick={handleExport}
+              disabled={filtered.length === 0}
+              className="flex h-10 items-center gap-1.5 whitespace-nowrap rounded-lg bg-white/70 px-3 text-sm font-semibold text-gray-600 transition-colors hover:bg-white disabled:opacity-40"
+            >
+              <Download className="h-4 w-4" />
+              Export CSV
+            </button>
           </div>
         </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">From</label>
-          <input
-            type="date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            className="text-sm bg-white/60 backdrop-blur-sm border border-white/60 rounded-lg px-3 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-          />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">To</label>
-          <input
-            type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            className="text-sm bg-white/60 backdrop-blur-sm border border-white/60 rounded-lg px-3 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40"
-          />
-        </div>
-
-        <div className="ml-auto flex items-center gap-2">
-          <span className="text-xs text-gray-400">{filtered.length} entries</span>
-          <button
-            onClick={handleExport}
-            disabled={filtered.length === 0}
-            className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 glass px-3 py-1.5 rounded-lg hover:bg-white/70 transition-colors disabled:opacity-40"
-          >
-            <Download className="w-3.5 h-3.5" />
-            Export CSV
-          </button>
-        </div>
       </div>
 
-      {/* Table */}
-      <div className="glass rounded-2xl overflow-hidden">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-white/60">
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                Timestamp
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                Action
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                User
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                Run
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                Details
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/50">
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-4 py-12 text-center text-gray-400 text-sm">
-                  No audit log entries match the current filters
-                </td>
+      <div className="glass overflow-hidden rounded-xl">
+        <div className="flex items-center justify-between border-b border-white/60 px-4 py-3">
+          <p className="text-sm font-semibold text-gray-800">
+            Showing {filtered.length === 0 ? 0 : start + 1}-{Math.min(start + pageSize, filtered.length)} of{' '}
+            {filtered.length.toLocaleString()}
+          </p>
+          <PaginationControls
+            page={safePage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            onPage={setPage}
+            onPageSize={(value) => {
+              setPageSize(value)
+              setPage(1)
+            }}
+          />
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full table-fixed text-[15px]">
+            <colgroup>
+              <col className="w-[170px]" />
+              <col className="w-[190px]" />
+              <col className="w-[190px]" />
+              <col className="w-[150px]" />
+              <col />
+            </colgroup>
+            <thead>
+              <tr className="border-b border-white/60">
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Timestamp
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Action
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  User
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Run
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  Details
+                </th>
               </tr>
-            )}
-            {filtered.map((entry) => {
-              const date = new Date(entry.created_at)
-              return (
-                <tr key={entry.id} className="hover:bg-white/30 transition-colors">
-                  <td className="px-4 py-3 text-xs text-gray-500 font-mono whitespace-nowrap">
-                    <p>{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                    <p className="text-gray-400">{date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' })}</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={cn(
-                        'text-xs font-semibold px-2 py-0.5 rounded-full',
-                        entry.action === 'reconciliation_run_created'
-                          ? 'bg-blue-100/80 text-blue-700'
-                          : 'bg-gray-100/80 text-gray-600'
-                      )}
-                    >
-                      {formatAction(entry.action)}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500 font-mono">
-                    {entry.user_id ? (
-                      <span title={entry.user_id}>{entry.user_id.slice(0, 14)}...</span>
-                    ) : (
-                      <span className="text-gray-300">-</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-xs">
-                    {entry.run_id ? (
-                      <a
-                        href={`/runs/${entry.run_id}`}
-                        className="font-mono text-blue-600 hover:underline"
-                      >
-                        {entry.run_id.slice(0, 8)}...
-                      </a>
-                    ) : (
-                      <span className="text-gray-300">-</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-500">
-                    {formatMetadata(entry.metadata)}
+            </thead>
+            <tbody className="divide-y divide-white/50">
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="px-4 py-12 text-center text-sm text-gray-400">
+                    No audit log entries match the current filters
                   </td>
                 </tr>
-              )
-            })}
-          </tbody>
-        </table>
+              )}
+              {visible.map((entry) => {
+                const date = new Date(entry.created_at)
+                const metadata = formatMetadata(entry.metadata)
+                return (
+                  <tr key={entry.id} className="align-top transition-colors hover:bg-white/30">
+                    <td className="px-4 py-3 text-xs font-mono text-gray-500">
+                      <p>{date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
+                      <p className="text-gray-400">
+                        {date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit' })}
+                      </p>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={cn(
+                          'inline-flex rounded-full px-2.5 py-1 text-xs font-semibold',
+                          ACTION_STYLE[entry.action] ?? 'bg-gray-100/80 text-gray-600'
+                        )}
+                      >
+                        {formatAction(entry.action)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-xs font-mono text-gray-500">
+                      {entry.user_id ? (
+                        <span title={entry.user_id} className="block truncate">
+                          {entry.user_id}
+                        </span>
+                      ) : (
+                        <span className="text-gray-300">-</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-xs">
+                      {entry.run_id ? (
+                        <a href={`/runs/${entry.run_id}`} className="block truncate font-mono text-blue-600 hover:underline">
+                          {entry.run_id}
+                        </a>
+                      ) : (
+                        <span className="text-gray-300">-</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-sm leading-relaxed text-gray-600">
+                      <span title={entry.metadata ? JSON.stringify(entry.metadata) : undefined} className="line-clamp-2">
+                        {metadata}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
+    </div>
+  )
+}
+
+function PaginationControls({
+  page,
+  totalPages,
+  pageSize,
+  onPage,
+  onPageSize,
+}: {
+  page: number
+  totalPages: number
+  pageSize: number
+  onPage: (page: number) => void
+  onPageSize: (pageSize: number) => void
+}) {
+  return (
+    <div className="flex items-center gap-2 text-xs">
+      <span className="text-gray-400">Rows</span>
+      <select
+        value={pageSize}
+        onChange={(event) => onPageSize(Number(event.target.value))}
+        className="rounded-lg border border-white/70 bg-white/70 px-2 py-1 font-semibold text-gray-700 outline-none"
+      >
+        {[10, 50, 100].map((value) => (
+          <option key={value} value={value}>
+            {value}
+          </option>
+        ))}
+      </select>
+      <button
+        onClick={() => onPage(Math.max(page - 1, 1))}
+        disabled={page <= 1}
+        className="rounded-lg bg-white/70 px-2.5 py-1 font-semibold text-gray-600 disabled:opacity-40"
+      >
+        Prev
+      </button>
+      <span className="min-w-[70px] text-center font-semibold text-gray-600">
+        {page} / {totalPages}
+      </span>
+      <button
+        onClick={() => onPage(Math.min(page + 1, totalPages))}
+        disabled={page >= totalPages}
+        className="rounded-lg bg-white/70 px-2.5 py-1 font-semibold text-gray-600 disabled:opacity-40"
+      >
+        Next
+      </button>
     </div>
   )
 }

@@ -61,11 +61,39 @@ export type DiscrepancyType =
   | 'name_variation_flagged'     // AI-resolved name mismatch, low confidence
 
 export type DiscrepancySeverity = 'critical' | 'high' | 'medium' | 'low'
+export type DiscrepancyStatus = 'open' | 'in_review' | 'resolved'
+export type ResolutionType = 'corrected' | 'waived' | 'duplicate' | 'escalated'
+export type ReconciliationCadence = 'daily' | 'weekly' | 'monthly'
+export type ResolutionSuggestionType =
+  | 'draft_invoice'
+  | 'issue_credit'
+  | 'provision_product'
+  | 'deactivate_account'
+  | 'correct_rate'
+  | 'review_manually'
+export type RootCauseCategory =
+  | 'provisioning_gap'
+  | 'rate_table_error'
+  | 'plan_sync_failure'
+  | 'account_lifecycle_failure'
+  | 'proration_logic_mismatch'
+  | 'manual_override_not_propagated'
+  | 'data_sync_failure'
+  | 'duplicate_record'
+  | 'unclassified'
 
 export interface Discrepancy {
   id: string
   type: DiscrepancyType
   severity: DiscrepancySeverity
+  status?: DiscrepancyStatus
+  assignedTo?: string | null
+  assignmentNote?: string | null
+  dueAt?: string | null
+  resolutionType?: ResolutionType | null
+  resolutionComment?: string | null
+  resolvedAt?: string | null
+  rootCauseCategory?: RootCauseCategory | null
   amountAtRisk: number
   /** Positive = revenue leaked (underbilled). Negative = overbilled to merchant. */
   direction: 'under_billed' | 'over_billed' | 'missing'

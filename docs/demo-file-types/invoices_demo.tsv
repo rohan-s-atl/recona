@@ -1,0 +1,6 @@
+invoice_id	client_id	client_name	product_line	product_name	fee_type	amount	billing_period	invoice_date	transaction_volume	status
+INV-9001	MID-1001	Northstar Coffee LLC	Apex POS	Apex POS Pro	Monthly software	199.00	2026-05	2026-05-02		sent
+INV-9002	MID-1002	Harbor Books	FlowPay	FlowPay Processing	Processing	350.00	2026-05	2026-05-02	10000	sent
+INV-9003	MID-1003	Cedar Fitness	ShieldNet	ShieldNet Core	Security add-on	0.00	2026-05	2026-05-02		missing
+INV-9004	MID-1004	Lakeview Market	InsightIQ	InsightIQ Dashboard	Analytics	149.00	2026-05	2026-05-02		sent
+INV-9006	MID-9999	Unknown Merchant	WebCharge	WebCharge Gateway	Gateway	49.00	2026-05	2026-05-02		sent

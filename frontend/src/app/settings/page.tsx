@@ -1,12 +1,15 @@
 import Link from 'next/link'
 import { Shield, Users } from 'lucide-react'
-import { hasRole } from '@/lib/auth'
+import { getDataScope, hasRole } from '@/lib/auth'
+import { getOrganizationSettings } from '@/lib/db'
 import { InviteTeammateForm } from '@/components/InviteTeammateForm'
+import { NotificationSettingsForm } from '@/components/NotificationSettingsForm'
 
 export const dynamic = 'force-dynamic'
 
 export default async function SettingsPage() {
   const isAdmin = await hasRole('admin')
+  const notificationSettings = await getOrganizationSettings(getDataScope())
 
   if (!isAdmin) {
     return (
@@ -40,6 +43,7 @@ export default async function SettingsPage() {
 
       <div className="space-y-6">
         <InviteTeammateForm />
+        <NotificationSettingsForm initial={notificationSettings} />
         <div className="glass rounded-2xl p-5">
           <p className="text-sm font-semibold text-gray-800">Role model</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">

@@ -1,0 +1,67 @@
+[
+  {
+    "invoice_id": "INV-9001",
+    "client_id": "MID-1001",
+    "client_name": "Northstar Coffee LLC",
+    "product_line": "Apex POS",
+    "product_name": "Apex POS Pro",
+    "fee_type": "Monthly software",
+    "amount": "199.00",
+    "billing_period": "2026-05",
+    "invoice_date": "2026-05-02",
+    "transaction_volume": "",
+    "status": "sent"
+  },
+  {
+    "invoice_id": "INV-9002",
+    "client_id": "MID-1002",
+    "client_name": "Harbor Books",
+    "product_line": "FlowPay",
+    "product_name": "FlowPay Processing",
+    "fee_type": "Processing",
+    "amount": "350.00",
+    "billing_period": "2026-05",
+    "invoice_date": "2026-05-02",
+    "transaction_volume": "10000",
+    "status": "sent"
+  },
+  {
+    "invoice_id": "INV-9003",
+    "client_id": "MID-1003",
+    "client_name": "Cedar Fitness",
+    "product_line": "ShieldNet",
+    "product_name": "ShieldNet Core",
+    "fee_type": "Security add-on",
+    "amount": "0.00",
+    "billing_period": "2026-05",
+    "invoice_date": "2026-05-02",
+    "transaction_volume": "",
+    "status": "missing"
+  },
+  {
+    "invoice_id": "INV-9004",
+    "client_id": "MID-1004",
+    "client_name": "Lakeview Market",
+    "product_line": "InsightIQ",
+    "product_name": "InsightIQ Dashboard",
+    "fee_type": "Analytics",
+    "amount": "149.00",
+    "billing_period": "2026-05",
+    "invoice_date": "2026-05-02",
+    "transaction_volume": "",
+    "status": "sent"
+  },
+  {
+    "invoice_id": "INV-9006",
+    "client_id": "MID-9999",
+    "client_name": "Unknown Merchant",
+    "product_line": "WebCharge",
+    "product_name": "WebCharge Gateway",
+    "fee_type": "Gateway",
+    "amount": "49.00",
+    "billing_period": "2026-05",
+    "invoice_date": "2026-05-02",
+    "transaction_volume": "",
+    "status": "sent"
+  }
+]

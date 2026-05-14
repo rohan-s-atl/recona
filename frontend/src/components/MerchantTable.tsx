@@ -42,6 +42,12 @@ interface MerchantTableProps {
 
 export function MerchantTable({ summaries }: MerchantTableProps) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
+  const [pageSize, setPageSize] = useState(50)
+  const [page, setPage] = useState(1)
+  const totalPages = Math.max(Math.ceil(summaries.length / pageSize), 1)
+  const safePage = Math.min(page, totalPages)
+  const start = (safePage - 1) * pageSize
+  const visibleSummaries = summaries.slice(start, start + pageSize)
 
   function toggle(id: string) {
     setExpanded((prev) => {
@@ -52,21 +58,38 @@ export function MerchantTable({ summaries }: MerchantTableProps) {
   }
 
   return (
-    <div className="glass rounded-2xl overflow-hidden">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-white/60">
-            <th className="w-8" />
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Merchant</th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">MID</th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide">Charged</th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide">Billed</th>
-            <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide">At Risk</th>
-            <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Issues</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-white/50">
-          {summaries.map((m) => {
+    <div className="glass overflow-hidden rounded-xl">
+      <div className="flex items-center justify-between gap-3 border-b border-white/60 px-4 py-3 print:hidden">
+        <p className="text-sm font-semibold text-gray-800">
+          Showing {summaries.length === 0 ? 0 : start + 1}-{Math.min(start + pageSize, summaries.length)} of{' '}
+          {summaries.length.toLocaleString()} merchants
+        </p>
+        <PaginationControls
+          page={safePage}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPage={setPage}
+          onPageSize={(value) => {
+            setPageSize(value)
+            setPage(1)
+          }}
+        />
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-[15px]">
+          <thead>
+            <tr className="border-b border-white/60">
+              <th className="w-8" />
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Merchant</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">MID</th>
+              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide">Charged</th>
+              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide">Billed</th>
+              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wide">At Risk</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wide">Issues</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-white/50">
+            {visibleSummaries.map((m) => {
             const isOpen = expanded.has(m.merchantId)
             return (
               <Fragment key={m.merchantId}>
@@ -155,8 +178,57 @@ export function MerchantTable({ summaries }: MerchantTableProps) {
               </Fragment>
             )
           })}
-        </tbody>
-      </table>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  )
+}
+
+function PaginationControls({
+  page,
+  totalPages,
+  pageSize,
+  onPage,
+  onPageSize,
+}: {
+  page: number
+  totalPages: number
+  pageSize: number
+  onPage: (page: number) => void
+  onPageSize: (pageSize: number) => void
+}) {
+  return (
+    <div className="flex items-center gap-2 text-xs">
+      <span className="text-gray-400">Rows</span>
+      <select
+        value={pageSize}
+        onChange={(event) => onPageSize(Number(event.target.value))}
+        className="rounded-lg border border-white/70 bg-white/70 px-2 py-1 font-semibold text-gray-700 outline-none"
+      >
+        {[10, 50, 100].map((value) => (
+          <option key={value} value={value}>
+            {value}
+          </option>
+        ))}
+      </select>
+      <button
+        onClick={() => onPage(Math.max(page - 1, 1))}
+        disabled={page <= 1}
+        className="rounded-lg bg-white/70 px-2.5 py-1 font-semibold text-gray-600 disabled:opacity-40"
+      >
+        Prev
+      </button>
+      <span className="min-w-[70px] text-center font-semibold text-gray-600">
+        {page} / {totalPages}
+      </span>
+      <button
+        onClick={() => onPage(Math.min(page + 1, totalPages))}
+        disabled={page >= totalPages}
+        className="rounded-lg bg-white/70 px-2.5 py-1 font-semibold text-gray-600 disabled:opacity-40"
+      >
+        Next
+      </button>
     </div>
   )
 }

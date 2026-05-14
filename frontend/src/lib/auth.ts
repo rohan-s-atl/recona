@@ -39,6 +39,7 @@ export async function getUserRole(): Promise<UserRole> {
   try {
     const user = await withTimeout(currentUser())
     if (!user) return 'viewer'
+    if (isLocalDevAdmin(user.emailAddresses.map((email) => email.emailAddress))) return 'admin'
     const role = (user.publicMetadata?.role ?? 'analyst') as UserRole
     return ROLE_LEVELS[role] !== undefined ? role : 'analyst'
   } catch (error) {
@@ -47,7 +48,31 @@ export async function getUserRole(): Promise<UserRole> {
   }
 }
 
+export async function getCurrentUserLabel(): Promise<string | null> {
+  try {
+    const user = await withTimeout(currentUser())
+    if (!user) return getCurrentAuth().userId
+    return user.primaryEmailAddress?.emailAddress ?? user.emailAddresses[0]?.emailAddress ?? user.id
+  } catch (error) {
+    console.error('[auth] getCurrentUserLabel failed:', error)
+    return getCurrentAuth().userId
+  }
+}
+
 export async function hasRole(minimum: UserRole): Promise<boolean> {
   const role = await getUserRole()
   return ROLE_LEVELS[role] >= ROLE_LEVELS[minimum]
+}
+
+function isLocalDevAdmin(userEmails: string[]): boolean {
+  if (process.env.NODE_ENV === 'production') return false
+  const configuredEmails = process.env.RECONA_ADMIN_EMAILS
+  if (!configuredEmails) return false
+
+  const adminEmails = configuredEmails
+    .split(',')
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean)
+
+  return userEmails.some((email) => adminEmails.includes(email.toLowerCase()))
 }

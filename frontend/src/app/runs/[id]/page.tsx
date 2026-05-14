@@ -15,6 +15,14 @@ function dbDiscrepancyToFrontend(d: DbDiscrepancy): Discrepancy {
     id: d.id,
     type: d.type as DiscrepancyType,
     severity: d.severity as DiscrepancySeverity,
+    status: d.status ?? 'open',
+    assignedTo: d.assigned_to,
+    assignmentNote: d.assignment_note,
+    dueAt: d.due_at,
+    resolutionType: d.resolution_type,
+    resolutionComment: d.resolution_comment,
+    resolvedAt: d.resolved_at,
+    rootCauseCategory: d.root_cause_category ?? 'unclassified',
     amountAtRisk: Number(d.amount_at_risk),
     direction: d.direction as Discrepancy['direction'],
     merchantId: d.merchant_id,
@@ -32,13 +40,13 @@ function dbDiscrepancyToFrontend(d: DbDiscrepancy): Discrepancy {
 export default async function RunDetailPage({ params }: { params: { id: string } }) {
   if (!isSupabaseConfigured()) {
     return (
-      <main className="max-w-4xl mx-auto px-6 py-20 text-center">
+      <main className="mx-auto max-w-[1800px] px-6 py-20 text-center lg:px-10">
         <p className="text-gray-500 font-medium">Database not configured</p>
         <p className="text-sm text-gray-400 mt-2">
           Set your Supabase environment variables to enable run persistence.
         </p>
         <Link href="/runs" className="mt-6 inline-flex text-sm text-blue-600 hover:underline">
-          ← Back to runs
+          Back to runs
         </Link>
       </main>
     )
@@ -80,8 +88,8 @@ export default async function RunDetailPage({ params }: { params: { id: string }
   }
 
   return (
-    <main className="max-w-6xl mx-auto px-6 py-10">
-      <div className="mb-8 print:hidden">
+    <main className="mx-auto max-w-[1800px] px-6 py-7 lg:px-10">
+      <div className="mb-5 print:hidden">
         <Link
           href="/runs"
           className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
@@ -89,7 +97,7 @@ export default async function RunDetailPage({ params }: { params: { id: string }
           <ArrowLeft className="w-4 h-4" />
           All runs
         </Link>
-        <h1 className="text-2xl font-bold text-gray-900 mt-3">Reconciliation run</h1>
+        <h1 className="mt-3 text-3xl font-bold text-gray-900">Reconciliation run</h1>
       </div>
 
       <RunResultView

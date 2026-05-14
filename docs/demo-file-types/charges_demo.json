@@ -1,0 +1,67 @@
+[
+  {
+    "record_id": "CHG-1001",
+    "client_id": "MID-1001",
+    "client_name": "Northstar Coffee",
+    "product_line": "Apex POS",
+    "product_name": "Apex POS Pro",
+    "fee_type": "Monthly software",
+    "amount": "199.00",
+    "billing_period": "2026-05",
+    "date": "2026-05-01",
+    "transaction_volume": "",
+    "account_status": "active"
+  },
+  {
+    "record_id": "CHG-1002",
+    "client_id": "MID-1002",
+    "client_name": "Harbor Books",
+    "product_line": "FlowPay",
+    "product_name": "FlowPay Processing",
+    "fee_type": "Processing",
+    "amount": "310.00",
+    "billing_period": "2026-05",
+    "date": "2026-05-01",
+    "transaction_volume": "10000",
+    "account_status": "active"
+  },
+  {
+    "record_id": "CHG-1003",
+    "client_id": "MID-1003",
+    "client_name": "Cedar Fitness",
+    "product_line": "ShieldNet",
+    "product_name": "ShieldNet Core",
+    "fee_type": "Security add-on",
+    "amount": "89.00",
+    "billing_period": "2026-05",
+    "date": "2026-05-01",
+    "transaction_volume": "",
+    "account_status": "active"
+  },
+  {
+    "record_id": "CHG-1004",
+    "client_id": "MID-1004",
+    "client_name": "Lakeview Market",
+    "product_line": "InsightIQ",
+    "product_name": "InsightIQ Dashboard",
+    "fee_type": "Analytics",
+    "amount": "149.00",
+    "billing_period": "2026-05",
+    "date": "2026-05-01",
+    "transaction_volume": "",
+    "account_status": "active"
+  },
+  {
+    "record_id": "CHG-1005",
+    "client_id": "MID-1005",
+    "client_name": "Metro Salon",
+    "product_line": "LoyaltyLoop",
+    "product_name": "LoyaltyLoop Starter",
+    "fee_type": "Loyalty",
+    "amount": "59.00",
+    "billing_period": "2026-05",
+    "date": "2026-05-01",
+    "transaction_volume": "",
+    "account_status": "active"
+  }
+]

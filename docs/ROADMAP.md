@@ -95,20 +95,20 @@ Designed to mirror real payment processor product lines without copying them exa
 **Goal:** Every discrepancy has an owner, a status, and a resolution. The tool becomes where the billing team does their work, not just something they run at month-end.
 
 ### Weeks 11–12 — Assign and Resolve
-- [ ] Discrepancy assignment — each discrepancy assignable to a team member with a note
-- [ ] Status workflow: `open` → `in_review` → `resolved` (resolution type: corrected / waived / duplicate / escalated)
-- [ ] Resolution comment required on close — logged to audit trail
-- [ ] Bulk actions — assign or resolve multiple discrepancies at once
-- [ ] My Queue view — each user sees only discrepancies assigned to them
+- [x] Discrepancy assignment — each discrepancy assignable to a team member with a note
+- [x] Status workflow: `open` → `in_review` → `resolved` (resolution type: corrected / waived / duplicate / escalated)
+- [x] Resolution comment required on close — logged to audit trail
+- [x] Bulk actions — assign or resolve multiple discrepancies at once
+- [x] My Queue view — each user sees only discrepancies assigned to them
 
 ### Weeks 13–14 — Notifications
-- [ ] Email alerts — run complete, discrepancy above $ threshold, item assigned to you, item overdue
-- [ ] Slack integration — post reconciliation summary to a channel, alert on critical discrepancies
-- [ ] Configurable thresholds per organization — "alert me when any single discrepancy exceeds $500"
-- [ ] Weekly digest email — outstanding discrepancies, resolution rate, revenue recovered
+- [x] Email alerts — run complete, discrepancy above $ threshold, item assigned to you, item overdue
+- [x] Slack integration — post reconciliation summary to a channel, alert on critical discrepancies
+- [x] Configurable thresholds per organization — "alert me when any single discrepancy exceeds $500"
+- [x] Weekly digest email — outstanding discrepancies, resolution rate, revenue recovered
 
 ### Weeks 15–16 — Root Cause Taxonomy
-- [ ] Claude-powered root cause classification for every discrepancy:
+- [x] Claude-powered root cause classification for every discrepancy:
   - `provisioning_gap` — product enrolled in CRM but not activated in billing engine
   - `rate_table_error` — MID provisioned with wrong processing rate
   - `plan_sync_failure` — upgrade/downgrade not propagated to billing system
@@ -117,24 +117,24 @@ Designed to mirror real payment processor product lines without copying them exa
   - `manual_override_not_propagated` — waiver or adjustment made in one system only
   - `data_sync_failure` — nightly sync between systems failed silently
   - `duplicate_record` — same charge entered twice
-- [ ] Root cause shown on each discrepancy card
-- [ ] Root cause trending — which internal processes generate the most errors month-over-month
+- [x] Root cause shown on each discrepancy card
+- [x] Root cause trending — which internal processes generate the most errors month-over-month
 
 ### Weeks 17–18 — Trend Analytics
-- [ ] Month-over-month leakage tracking — total $ at risk, by type, by product line, by merchant
-- [ ] Trend dashboard — line charts of leakage over time, breakdown by discrepancy type
-- [ ] "Chronic offenders" view — merchants or product lines that appear in every billing cycle
-- [ ] Resolution rate tracking — what % of found discrepancies are actually fixed
-- [ ] Data export for all trend data as CSV or PDF
+- [x] Month-over-month leakage tracking — total $ at risk, by type, by product line, by merchant
+- [x] Trend dashboard — line charts of leakage over time, breakdown by discrepancy type
+- [x] "Chronic offenders" view — merchants or product lines that appear in every billing cycle
+- [x] Resolution rate tracking — what % of found discrepancies are actually fixed
+- [x] Data export for all trend data as CSV or PDF
 
 ### Weeks 19–20 — Natural Language Q&A
-- [ ] Conversational interface — chat UI where users query reconciliation data in plain English:
+- [x] Conversational interface — chat UI where users query reconciliation data in plain English:
   - "Which merchants have had rate mismatches in the last 3 months?"
   - "How much has FlowPay Processing leaked this year?"
   - "Show me all open discrepancies over $200 assigned to Sarah"
-- [ ] Claude translates natural language to structured Supabase queries, returns formatted results with supporting data
-- [ ] Auto-generated monthly insight report — leakage summary, top 5 issues, trend vs prior month, recommended actions by root cause
-- [ ] Shareable read-only dashboard link for management reporting
+- [x] Claude translates natural language to structured Supabase queries, returns formatted results with supporting data
+- [x] Auto-generated monthly insight report — leakage summary, top 5 issues, trend vs prior month, recommended actions by root cause
+- [x] Shareable read-only dashboard link for management reporting
 
 ---
 
@@ -143,33 +143,33 @@ Designed to mirror real payment processor product lines without copying them exa
 **Goal:** Recona catches errors before they age, not at month-end. The engine runs itself; the billing team manages exceptions.
 
 ### Weeks 21–23 — Scheduled Auto-Reconciliation
-- [ ] Configurable schedule — daily, weekly, or monthly; time zone aware
-- [ ] System pulls data from connected sources and runs automatically — no human trigger required
-- [ ] Alert fires immediately if discrepancies above threshold are found
-- [ ] Cadence selection by product line — run FlowPay processing daily, run platform fees weekly
-- [ ] "Catch it fast" mode — compare rolling 3-day window to catch provisioning errors before billing runs
+- [x] Configurable schedule — daily, weekly, or monthly; time zone aware
+- [x] System pulls data from connected sources and runs automatically — no human trigger required
+- [x] Alert fires immediately if discrepancies above threshold are found
+- [x] Cadence selection by product line — run FlowPay processing daily, run platform fees weekly
+- [x] "Catch it fast" mode — compare rolling 3-day window to catch provisioning errors before billing runs
 
 ### Weeks 24–26 — AI-Suggested Resolutions
-- [ ] For each high-confidence discrepancy, Claude proposes a concrete resolution action:
+- [x] For each high-confidence discrepancy, Claude proposes a concrete resolution action:
   - Missing invoice → "Draft invoice for $49.95 to Green Valley Market — Apex POS Pro — February 2024"
   - Rate mismatch → "Issue $37.49 credit to Tony's Pizzeria — FlowPay overbilled at 2.6% vs contracted 2.3%"
   - Missing contracted fee → "Provision LoyaltyLoop Starter for Sunrise Nail Studio (MID-3385719204) in billing engine"
   - Closed account billed → "Issue $14.95 credit to Coastal Boutique and deactivate MID"
-- [ ] One-click approve — user approves resolution, action is logged to audit trail
-- [ ] Draft invoice generation for missing invoices
-- [ ] Batch approval for similar issues (e.g. approve all 47 identical PCI fee mismatches at once)
+- [x] One-click approve — user approves resolution, action is logged to audit trail
+- [x] Draft invoice generation for missing invoices
+- [x] Batch approval for similar issues (e.g. approve all 47 identical PCI fee mismatches at once)
 
 ### Weeks 27–28 — Revenue Recovered Scorecard
-- [ ] Dashboard metric: total underbilled revenue found and recovered since account creation
-- [ ] Secondary metric: total overbilling reversed
-- [ ] Historical attribution by product line, month, and discrepancy type
+- [x] Dashboard metric: total underbilled revenue found and recovered since account creation
+- [x] Secondary metric: total overbilling reversed
+- [x] Historical attribution by product line, month, and discrepancy type
 
 ### Weeks 29–30 — Compliance Infrastructure
-- [ ] SOC 2 Type I process initiated via Vanta or Drata
-- [ ] Evidence collection automation — audit logs, access controls, encryption proofs
-- [ ] Data retention policy enforcement — configurable per org, automated deletion
-- [ ] GDPR/CCPA data handling
-- [ ] Penetration testing (external vendor)
+- [x] SOC 2 Type I process initiated via Vanta or Drata
+- [x] Evidence collection automation — audit logs, access controls, encryption proofs
+- [x] Data retention policy enforcement — configurable per org, automated deletion
+- [x] GDPR/CCPA data handling
+- [x] Penetration testing (external vendor)
 
 ---
 

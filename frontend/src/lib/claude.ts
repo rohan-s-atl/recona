@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { ColumnMapping, NormalizedRecord } from '@/types'
+import { logAiAudit } from './db'
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
@@ -54,6 +55,14 @@ Respond with ONLY valid JSON, no explanation:
     header_count: headers.length,
     sample_rows: sample.length,
     latency_ms: Date.now() - startedAt,
+  })
+  await logAiAudit({
+    event: 'column_mapping',
+    model: FAST_MODEL,
+    prompt,
+    inputSummary: { header_count: headers.length, sample_rows: sample.length },
+    outputSummary: { content_type: response.content[0].type },
+    latencyMs: Date.now() - startedAt,
   })
 
   const text = response.content[0].type === 'text' ? response.content[0].text : ''
@@ -166,6 +175,14 @@ Confidence scale:
     candidate_count: candidates.length,
     latency_ms: Date.now() - startedAt,
   })
+  await logAiAudit({
+    event: 'fuzzy_match_batch',
+    model: FAST_MODEL,
+    prompt,
+    inputSummary: { candidate_count: candidates.length },
+    outputSummary: { content_type: response.content[0].type },
+    latencyMs: Date.now() - startedAt,
+  })
 
   const text = response.content[0].type === 'text' ? response.content[0].text : '[]'
 
@@ -243,6 +260,17 @@ Write 4–6 sentences only. No bullet points. No headers.`
     model: SMART_MODEL,
     discrepancy_count: data.discrepancyCount,
     latency_ms: Date.now() - startedAt,
+  })
+  await logAiAudit({
+    event: 'executive_summary',
+    model: SMART_MODEL,
+    prompt,
+    inputSummary: {
+      discrepancy_count: data.discrepancyCount,
+      total_at_risk: data.totalAtRisk,
+    },
+    outputSummary: { content_type: response.content[0].type },
+    latencyMs: Date.now() - startedAt,
   })
 
   return response.content[0].type === 'text' ? response.content[0].text.trim() : ''

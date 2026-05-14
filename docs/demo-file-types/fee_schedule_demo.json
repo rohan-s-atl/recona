@@ -1,0 +1,42 @@
+[
+  {
+    "merchant_id": "MID-1001",
+    "merchant_name": "Northstar Coffee",
+    "product_line": "Apex POS",
+    "product_name": "Apex POS Pro",
+    "fee_type": "Monthly software",
+    "rate_type": "flat",
+    "contracted_rate": "199.00",
+    "effective_date": "2026-01-01"
+  },
+  {
+    "merchant_id": "MID-1002",
+    "merchant_name": "Harbor Books",
+    "product_line": "FlowPay",
+    "product_name": "FlowPay Processing",
+    "fee_type": "Processing",
+    "rate_type": "percentage",
+    "contracted_rate": "3.10",
+    "effective_date": "2026-01-01"
+  },
+  {
+    "merchant_id": "MID-1003",
+    "merchant_name": "Cedar Fitness",
+    "product_line": "ShieldNet",
+    "product_name": "ShieldNet Core",
+    "fee_type": "Security add-on",
+    "rate_type": "flat",
+    "contracted_rate": "89.00",
+    "effective_date": "2026-01-01"
+  },
+  {
+    "merchant_id": "MID-1005",
+    "merchant_name": "Metro Salon",
+    "product_line": "LoyaltyLoop",
+    "product_name": "LoyaltyLoop Starter",
+    "fee_type": "Loyalty",
+    "rate_type": "flat",
+    "contracted_rate": "59.00",
+    "effective_date": "2026-01-01"
+  }
+]

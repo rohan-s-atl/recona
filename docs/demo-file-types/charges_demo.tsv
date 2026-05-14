@@ -1,0 +1,6 @@
+record_id	client_id	client_name	product_line	product_name	fee_type	amount	billing_period	date	transaction_volume	account_status
+CHG-1001	MID-1001	Northstar Coffee	Apex POS	Apex POS Pro	Monthly software	199.00	2026-05	2026-05-01		active
+CHG-1002	MID-1002	Harbor Books	FlowPay	FlowPay Processing	Processing	310.00	2026-05	2026-05-01	10000	active
+CHG-1003	MID-1003	Cedar Fitness	ShieldNet	ShieldNet Core	Security add-on	89.00	2026-05	2026-05-01		active
+CHG-1004	MID-1004	Lakeview Market	InsightIQ	InsightIQ Dashboard	Analytics	149.00	2026-05	2026-05-01		active
+CHG-1005	MID-1005	Metro Salon	LoyaltyLoop	LoyaltyLoop Starter	Loyalty	59.00	2026-05	2026-05-01		active
