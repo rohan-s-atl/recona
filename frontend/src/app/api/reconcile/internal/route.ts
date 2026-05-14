@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { saveRun } from '@/lib/db'
 import { runReconciliationEngine } from '@/lib/reconcileEngine'
+import { isAuthorizedInternalWorkerRequest } from '@/lib/security'
 import type { ReconcileApiRequest } from '@/types'
 
 export const runtime = 'nodejs'
@@ -8,9 +9,7 @@ export const dynamic = 'force-dynamic'
 export const maxDuration = 120
 
 export async function POST(request: NextRequest) {
-  const expected = process.env.INTERNAL_WORKER_SECRET
-  const actual = request.headers.get('x-internal-worker-secret')
-  if (!expected || actual !== expected) {
+  if (!isAuthorizedInternalWorkerRequest(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

@@ -8,13 +8,20 @@ import {
   markNotificationSkipped,
   type NotificationOutboxRow,
 } from '@/lib/db'
+import { isAuthorizedCronRequest, isAuthorizedWorkerRequest } from '@/lib/security'
 
 export const dynamic = 'force-dynamic'
 
+export async function GET(request: NextRequest) {
+  return dispatchNotifications(request)
+}
+
 export async function POST(request: NextRequest) {
-  const expectedSecret = process.env.INTERNAL_WORKER_SECRET
-  const providedSecret = request.headers.get('x-worker-secret')
-  if (!expectedSecret || providedSecret !== expectedSecret) {
+  return dispatchNotifications(request)
+}
+
+async function dispatchNotifications(request: NextRequest) {
+  if (!isAuthorizedWorkerRequest(request) && !isAuthorizedCronRequest(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

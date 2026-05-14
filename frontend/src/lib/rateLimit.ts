@@ -4,6 +4,8 @@ interface RateLimitEntry {
 }
 
 const buckets = new Map<string, RateLimitEntry>()
+const MAX_BUCKETS = 5000
+let lastPrunedAt = 0
 
 export interface RateLimitResult {
   allowed: boolean
@@ -13,6 +15,7 @@ export interface RateLimitResult {
 
 export function checkRateLimit(key: string, limit: number, windowMs: number): RateLimitResult {
   const now = Date.now()
+  pruneExpiredBuckets(now)
   const current = buckets.get(key)
 
   if (!current || current.resetAt <= now) {
@@ -27,6 +30,14 @@ export function checkRateLimit(key: string, limit: number, windowMs: number): Ra
 
   current.count += 1
   return { allowed: true, remaining: limit - current.count, resetAt: current.resetAt }
+}
+
+function pruneExpiredBuckets(now: number) {
+  if (buckets.size < MAX_BUCKETS && now - lastPrunedAt < 60_000) return
+  lastPrunedAt = now
+  for (const [key, entry] of buckets.entries()) {
+    if (entry.resetAt <= now) buckets.delete(key)
+  }
 }
 
 export function rateLimitHeaders(result: RateLimitResult): HeadersInit {

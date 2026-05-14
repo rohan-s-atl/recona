@@ -552,12 +552,6 @@ export default function UploadPage() {
                   Permanent link
                 </a>
               )}
-              <button
-                onClick={() => window.print()}
-                className="flex items-center gap-1.5 text-sm font-semibold text-gray-600 glass px-3 py-2 rounded-lg hover:bg-white/70 transition-colors"
-              >
-                Export PDF
-              </button>
               <button onClick={reset} className="text-sm font-semibold text-blue-600 hover:text-blue-700">
                 New run
               </button>

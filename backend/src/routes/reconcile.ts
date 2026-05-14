@@ -1,9 +1,14 @@
 import { Router } from 'express'
+import { timingSafeEqual } from 'crypto'
 import { addReconcileJob, getReconcileJob, queueAvailable } from '../queue'
 
 export const reconcileRouter = Router()
 
 reconcileRouter.post('/', async (req, res) => {
+  if (!isAuthorizedWorkerRequest(req.header('x-worker-secret'))) {
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+
   if (!queueAvailable) {
     return res.status(503).json({ error: 'Redis queue is not configured' })
   }
@@ -39,6 +44,10 @@ reconcileRouter.post('/', async (req, res) => {
 })
 
 reconcileRouter.get('/:jobId/status', async (req, res) => {
+  if (!isAuthorizedWorkerRequest(req.header('x-worker-secret'))) {
+    return res.status(401).json({ error: 'Unauthorized' })
+  }
+
   if (!queueAvailable) {
     return res.status(503).json({ error: 'Redis queue is not configured' })
   }
@@ -54,3 +63,14 @@ reconcileRouter.get('/:jobId/status', async (req, res) => {
     returnvalue: job.returnvalue,
   })
 })
+
+function isAuthorizedWorkerRequest(actual: string | undefined): boolean {
+  const expected = process.env.INTERNAL_WORKER_SECRET
+  if (!actual || !expected) return false
+
+  const actualBuffer = Buffer.from(actual)
+  const expectedBuffer = Buffer.from(expected)
+  if (actualBuffer.length !== expectedBuffer.length) return false
+
+  return timingSafeEqual(actualBuffer, expectedBuffer)
+}

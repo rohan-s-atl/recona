@@ -21,6 +21,8 @@ interface RunResultViewProps {
 
 export function RunResultView({ result, ranAt, chargesFilename, invoicesFilename }: RunResultViewProps) {
   const [activeTab, setActiveTab] = useState<ResultTab>('merchants')
+  const [isExportingPdf, setIsExportingPdf] = useState(false)
+  const [pdfError, setPdfError] = useState<string | null>(null)
   const totalMatched = result.exactMatches + result.fuzzyMatches
   const matchBase = Math.max(result.totalChargesRecords, result.totalInvoicesRecords, 1)
   const matchRate = Math.round((totalMatched / matchBase) * 100)
@@ -57,6 +59,31 @@ export function RunResultView({ result, ranAt, chargesFilename, invoicesFilename
     await navigator.clipboard.writeText(`${window.location.origin}${json.urlPath}`)
   }
 
+  async function downloadPdf() {
+    setIsExportingPdf(true)
+    setPdfError(null)
+    try {
+      const response = await fetch(`/api/runs/${result.runId}/pdf`, { cache: 'no-store' })
+      if (!response.ok) {
+        const json = await response.json().catch(() => ({}))
+        throw new Error(json.error ?? 'Unable to generate PDF')
+      }
+      const blob = await response.blob()
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `recona-report-${result.runId.slice(0, 8)}.pdf`
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      setPdfError(error instanceof Error ? error.message : 'Unable to generate PDF')
+    } finally {
+      setIsExportingPdf(false)
+    }
+  }
+
   return (
     <div className="space-y-5">
       <div className="flex items-start justify-between gap-4 print:hidden">
@@ -82,14 +109,16 @@ export function RunResultView({ result, ranAt, chargesFilename, invoicesFilename
             Copy share link
           </button>
           <button
-            onClick={() => window.print()}
+            onClick={() => void downloadPdf()}
+            disabled={isExportingPdf}
             className="flex items-center gap-1.5 text-sm font-semibold text-gray-600 glass px-3 py-2 rounded-lg hover:bg-white/70 transition-colors"
           >
             <Printer className="w-4 h-4" />
-            Export PDF
+            {isExportingPdf ? 'Generating PDF...' : 'Export PDF'}
           </button>
         </div>
       </div>
+      {pdfError && <p className="print:hidden text-xs font-semibold text-red-600">{pdfError}</p>}
 
       {/* Print header - only visible when printing */}
       <div className="hidden print:block print:mb-4">

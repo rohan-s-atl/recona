@@ -6,9 +6,14 @@ import { queueAvailable } from './queue'
 
 const app = express()
 const PORT = process.env.PORT ?? 4000
+const allowedOrigins = (process.env.CORS_ORIGINS ?? process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000')
+  .split(',')
+  .map((origin) => origin.trim())
+  .filter(Boolean)
 
-app.use(cors({ origin: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000' }))
-app.use(express.json())
+app.disable('x-powered-by')
+app.use(cors({ origin: allowedOrigins }))
+app.use(express.json({ limit: '1mb' }))
 
 app.get('/health', (_req, res) =>
   res.json({

@@ -60,6 +60,9 @@ export async function getCurrentUserLabel(): Promise<string | null> {
 }
 
 export async function hasRole(minimum: UserRole): Promise<boolean> {
+  const { userId } = getCurrentAuth()
+  if (!userId) return false
+
   const role = await getUserRole()
   return ROLE_LEVELS[role] >= ROLE_LEVELS[minimum]
 }

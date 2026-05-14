@@ -4,13 +4,15 @@
   "private": true,
   "workspaces": [
     "frontend",
-    "backend",
-    "ai"
+    "backend"
   ],
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace=frontend\" \"npm run dev --workspace=backend\"",
     "build": "npm run build --workspace=frontend && npm run build --workspace=backend",
+    "check": "npm run lint --workspace=frontend && npm run typecheck --workspace=frontend && npm run typecheck --workspace=backend",
     "install:all": "npm install",
+    "smoke": "node scripts/smoke-test.mjs",
+    "check:env": "node scripts/check-env.mjs",
     "demo:generate-file-types": "node scripts/generate-demo-file-types.mjs",
     "loadtest:generate": "node scripts/generate-50k-recon-data.mjs",
     "loadtest:match": "node scripts/benchmark-indexed-match.mjs"

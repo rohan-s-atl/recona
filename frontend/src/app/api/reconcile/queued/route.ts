@@ -13,7 +13,8 @@ export async function POST(request: NextRequest) {
   }
 
   const backendUrl = process.env.BACKEND_URL
-  if (!backendUrl) {
+  const workerSecret = process.env.INTERNAL_WORKER_SECRET
+  if (!backendUrl || !workerSecret) {
     return NextResponse.json({ error: 'Background queue backend is not configured' }, { status: 503 })
   }
 
@@ -28,16 +29,29 @@ export async function POST(request: NextRequest) {
   }
 
   const body: ReconcileApiRequest = await request.json()
-  const res = await fetch(`${backendUrl}/api/reconcile`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      ...body,
-      userId,
-      orgId,
-      ipAddress,
-    }),
-  })
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 10_000)
+  let res: Response
+  try {
+    res = await fetch(`${backendUrl}/api/reconcile`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-worker-secret': workerSecret },
+      body: JSON.stringify({
+        ...body,
+        userId,
+        orgId,
+        ipAddress,
+      }),
+      signal: controller.signal,
+    })
+  } catch (error) {
+    const message = error instanceof Error && error.name === 'AbortError'
+      ? 'Background queue backend timed out'
+      : 'Background queue backend is unavailable'
+    return NextResponse.json({ error: message }, { status: 503, headers: rateLimitHeaders(rate) })
+  } finally {
+    clearTimeout(timeout)
+  }
 
   const data = await res.json().catch(() => ({}))
   return NextResponse.json(data, { status: res.status, headers: rateLimitHeaders(rate) })

@@ -5,6 +5,10 @@ import { collectComplianceEvidence, enforceRetention, getComplianceControls, upd
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
+  if (!(await hasRole('admin'))) {
+    return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
+  }
+
   const controls = await getComplianceControls(getDataScope())
   return NextResponse.json(controls)
 }

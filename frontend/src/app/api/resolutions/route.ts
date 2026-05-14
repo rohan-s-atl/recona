@@ -5,6 +5,10 @@ import { approveResolutionSuggestions, createMissingResolutionSuggestions, getRe
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
+  if (!(await hasRole('viewer'))) {
+    return NextResponse.json({ error: 'Viewer access required' }, { status: 403 })
+  }
+
   const suggestions = await getResolutionSuggestions(getDataScope())
   return NextResponse.json({ suggestions })
 }

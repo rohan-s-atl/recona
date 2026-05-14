@@ -9,16 +9,23 @@ import {
 } from '@/lib/db'
 import { runReconciliationEngine } from '@/lib/reconcileEngine'
 import { storeFeeSchedule, storeFile } from '@/lib/fileStore'
+import { isAuthorizedCronRequest, isAuthorizedWorkerRequest } from '@/lib/security'
 import type { ColumnMapping, FeeScheduleRecord, ReconcileApiRequest } from '@/types'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 120
 
+export async function GET(request: NextRequest) {
+  return dispatchSchedules(request)
+}
+
 export async function POST(request: NextRequest) {
-  const expectedSecret = process.env.INTERNAL_WORKER_SECRET
-  const providedSecret = request.headers.get('x-worker-secret')
-  if (!expectedSecret || providedSecret !== expectedSecret) {
+  return dispatchSchedules(request)
+}
+
+async function dispatchSchedules(request: NextRequest) {
+  if (!isAuthorizedWorkerRequest(request) && !isAuthorizedCronRequest(request)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

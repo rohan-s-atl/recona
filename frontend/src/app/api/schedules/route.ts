@@ -6,6 +6,10 @@ import type { ReconciliationCadence } from '@/types'
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
+  if (!(await hasRole('viewer'))) {
+    return NextResponse.json({ error: 'Viewer access required' }, { status: 403 })
+  }
+
   const schedules = await getReconciliationSchedules(getDataScope())
   return NextResponse.json({ schedules })
 }

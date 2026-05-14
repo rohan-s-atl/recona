@@ -10,12 +10,14 @@ export async function GET(_request: NextRequest, { params }: { params: { jobId: 
   }
 
   const backendUrl = process.env.BACKEND_URL
-  if (!backendUrl) {
+  const workerSecret = process.env.INTERNAL_WORKER_SECRET
+  if (!backendUrl || !workerSecret) {
     return NextResponse.json({ error: 'Background queue backend is not configured' }, { status: 503 })
   }
 
   const res = await fetch(`${backendUrl}/api/reconcile/${params.jobId}/status`, {
     cache: 'no-store',
+    headers: { 'x-worker-secret': workerSecret },
   })
   const data = await res.json().catch(() => ({}))
   return NextResponse.json(data, { status: res.status })

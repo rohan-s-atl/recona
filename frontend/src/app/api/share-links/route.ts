@@ -11,6 +11,9 @@ export async function POST(request: NextRequest) {
 
   const body = (await request.json()) as { runId?: string; ttlDays?: number }
   if (!body.runId) return NextResponse.json({ error: 'runId is required' }, { status: 400 })
+  if (body.ttlDays !== undefined && (!Number.isFinite(body.ttlDays) || body.ttlDays < 1 || body.ttlDays > 30)) {
+    return NextResponse.json({ error: 'ttlDays must be between 1 and 30' }, { status: 400 })
+  }
 
   const link = await createShareLink({
     runId: body.runId,

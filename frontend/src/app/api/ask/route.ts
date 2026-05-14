@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCurrentAuth, getDataScope } from '@/lib/auth'
+import { getCurrentAuth, getDataScope, hasRole } from '@/lib/auth'
 import { getDiscrepanciesForScope, getWorkflowAnalytics, logAiAudit } from '@/lib/db'
 import { formatCurrency } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
+  if (!(await hasRole('viewer'))) {
+    return NextResponse.json({ error: 'Viewer access required' }, { status: 403 })
+  }
+
   const { question } = (await request.json()) as { question?: string }
   const q = (question ?? '').trim()
   if (!q) return NextResponse.json({ error: 'Ask a question first' }, { status: 400 })

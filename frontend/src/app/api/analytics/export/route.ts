@@ -1,10 +1,14 @@
 import { NextResponse } from 'next/server'
-import { getDataScope } from '@/lib/auth'
+import { getDataScope, hasRole } from '@/lib/auth'
 import { getWorkflowAnalytics } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET() {
+  if (!(await hasRole('viewer'))) {
+    return NextResponse.json({ error: 'Viewer access required' }, { status: 403 })
+  }
+
   const analytics = await getWorkflowAnalytics(getDataScope())
   const rows = [
     ['section', 'label', 'value', 'extra'],
