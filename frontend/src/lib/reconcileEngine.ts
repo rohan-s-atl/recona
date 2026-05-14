@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid'
 import { getFile, getFeeSchedule } from '@/lib/fileStore'
+import { getSourceSnapshotById } from '@/lib/db'
 import { normalizeRecords } from '@/lib/normalizer'
 import {
   buildDiscrepanciesFromUnmatched,
@@ -9,7 +10,7 @@ import {
 } from '@/lib/matcher'
 import { checkRatesOnMatches, findMissingContractedFees } from '@/lib/rateChecker'
 import { batchFuzzyMatch, generateExecutiveSummary } from '@/lib/claude'
-import type { Discrepancy, MatchResult, NormalizedRecord, ReconcileApiRequest, ReconciliationResult } from '@/types'
+import type { Discrepancy, FeeScheduleRecord, MatchResult, NormalizedRecord, ReconcileApiRequest, ReconciliationResult } from '@/types'
 
 const FUZZY_BATCH_SIZE = 25
 const AUTO_ACCEPT_THRESHOLD = 0.85
@@ -37,12 +38,14 @@ export async function runReconciliationEngine(
   const { chargesFileId, invoicesFileId, chargesMapping, invoicesMapping, feeScheduleFileId } = body
 
   onProgress({ phase: 'parsing', label: 'Loading files...' })
-  const chargesFile = getFile(chargesFileId)
-  const invoicesFile = getFile(invoicesFileId)
+  const chargesFile = getFile(chargesFileId) ?? await getPersistedFile(chargesFileId)
+  const invoicesFile = getFile(invoicesFileId) ?? await getPersistedFile(invoicesFileId)
   if (!chargesFile) throw new Error('Charges file not found - please re-upload')
   if (!invoicesFile) throw new Error('Invoices file not found - please re-upload')
 
-  const feeSchedule = feeScheduleFileId ? getFeeSchedule(feeScheduleFileId) : null
+  const feeSchedule = feeScheduleFileId
+    ? getFeeSchedule(feeScheduleFileId) ?? await getPersistedFeeSchedule(feeScheduleFileId)
+    : null
   const chargesRecords = normalizeRecords(chargesFile.parsed.rows, chargesMapping, 'charges')
   const invoicesRecords = normalizeRecords(invoicesFile.parsed.rows, invoicesMapping, 'invoices')
 
@@ -209,6 +212,39 @@ export async function runReconciliationEngine(
     chargesFilename: chargesFile.filename,
     invoicesFilename: invoicesFile.filename,
     feeScheduleFilename: feeSchedule?.filename,
+  }
+}
+
+async function getPersistedFile(fileId: string) {
+  const snapshot = await getSourceSnapshotById(fileId)
+  if (!snapshot || (snapshot.role !== 'charges' && snapshot.role !== 'invoices')) return undefined
+  if (snapshot.expires_at && new Date(snapshot.expires_at).getTime() < Date.now()) return undefined
+  return {
+    filename: snapshot.filename,
+    sizeBytes: JSON.stringify(snapshot.rows).length,
+    parsed: {
+      headers: snapshot.headers,
+      rows: snapshot.rows,
+    },
+  }
+}
+
+async function getPersistedFeeSchedule(fileId: string) {
+  const snapshot = await getSourceSnapshotById(fileId)
+  if (!snapshot || snapshot.role !== 'fee_schedule') return undefined
+  if (snapshot.expires_at && new Date(snapshot.expires_at).getTime() < Date.now()) return undefined
+  return {
+    filename: snapshot.filename,
+    records: snapshot.rows.map((row) => ({
+      merchant_id: row.merchant_id,
+      merchant_name: row.merchant_name,
+      product_line: row.product_line,
+      product_name: row.product_name,
+      fee_type: row.fee_type,
+      rate_type: row.rate_type as FeeScheduleRecord['rate_type'],
+      contracted_rate: Number(row.contracted_rate),
+      effective_date: row.effective_date,
+    })),
   }
 }
 

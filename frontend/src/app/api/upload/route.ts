@@ -10,7 +10,7 @@ import {
   SUPPORTED_FILE_TYPES_LABEL,
 } from '@/lib/uploadConfig'
 import { getCurrentAuth, hasRole } from '@/lib/auth'
-import { logAudit } from '@/lib/db'
+import { createSourceSnapshot, logAudit } from '@/lib/db'
 import { checkRateLimit, getClientIp, rateLimitHeaders } from '@/lib/rateLimit'
 
 export const runtime = 'nodejs'
@@ -59,7 +59,19 @@ export async function POST(request: NextRequest) {
 
     const suggestedMapping = await inferColumnMapping(parsed.headers, parsed.rows)
 
-    const fileId = uuidv4()
+    const role = formData.get('role')
+    const snapshot =
+      role === 'charges' || role === 'invoices'
+        ? await createSourceSnapshot({
+            scope: { userId: userId ?? undefined, orgId: orgId ?? undefined },
+            role,
+            name: file.name,
+            filename: file.name,
+            parsed,
+            retentionDays: 1,
+          })
+        : null
+    const fileId = snapshot?.id ?? uuidv4()
     storeFile(fileId, {
       filename: file.name,
       sizeBytes: file.size,
@@ -72,7 +84,7 @@ export async function POST(request: NextRequest) {
       orgId: orgId ?? undefined,
       ipAddress,
       metadata: {
-        role: formData.get('role'),
+        role,
         filename: file.name,
         size_bytes: file.size,
         row_count: parsed.rows.length,

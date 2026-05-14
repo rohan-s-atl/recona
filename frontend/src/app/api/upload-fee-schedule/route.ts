@@ -10,7 +10,7 @@ import {
   SUPPORTED_FILE_TYPES_LABEL,
 } from '@/lib/uploadConfig'
 import { getCurrentAuth, hasRole } from '@/lib/auth'
-import { logAudit } from '@/lib/db'
+import { createSourceSnapshot, logAudit } from '@/lib/db'
 import { checkRateLimit, getClientIp, rateLimitHeaders } from '@/lib/rateLimit'
 
 export const runtime = 'nodejs'
@@ -71,7 +71,21 @@ export async function POST(request: NextRequest) {
     const merchantCount = new Set(records.map((r) => r.merchant_id)).size
     const productCount = new Set(records.map((r) => r.product_name)).size
 
-    const fileId = uuidv4()
+    const snapshotRows = records.map((record) =>
+      Object.fromEntries(Object.entries(record).map(([key, value]) => [key, value == null ? '' : String(value)]))
+    )
+    const snapshot = await createSourceSnapshot({
+      scope: { userId: userId ?? undefined, orgId: orgId ?? undefined },
+      role: 'fee_schedule',
+      name: file.name,
+      filename: file.name,
+      parsed: {
+        headers: snapshotRows.length > 0 ? Object.keys(snapshotRows[0]) : [],
+        rows: snapshotRows,
+      },
+      retentionDays: 1,
+    })
+    const fileId = snapshot?.id ?? uuidv4()
     storeFeeSchedule(fileId, { filename: file.name, records })
 
     await logAudit({
