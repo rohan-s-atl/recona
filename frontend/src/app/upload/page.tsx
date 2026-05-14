@@ -54,11 +54,6 @@ const PHASE_LABELS: Record<ReconcilePhase, string> = {
 const QUEUE_ROW_THRESHOLD = 5000
 
 function queuedStatusUrl(jobId: string): string {
-  const publicBackend = process.env.NEXT_PUBLIC_BACKEND_URL
-  if (publicBackend) return `${publicBackend}/api/reconcile/${jobId}/status`
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    return `http://localhost:4000/api/reconcile/${jobId}/status`
-  }
   return `/api/runs/${jobId}/status`
 }
 
