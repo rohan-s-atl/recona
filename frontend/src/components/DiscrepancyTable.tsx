@@ -1,6 +1,6 @@
 'use client'
 
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Discrepancy, DiscrepancyStatus, DiscrepancyType, ResolutionType } from '@/types'
 import { formatCurrency, exportToCsv, cn } from '@/lib/utils'
 import { CheckCircle, ChevronDown, ChevronRight, Download, UserPlus } from 'lucide-react'
@@ -71,6 +71,7 @@ interface DiscrepancyTableProps {
 }
 
 export function DiscrepancyTable({ discrepancies }: DiscrepancyTableProps) {
+  const [rows, setRows] = useState(discrepancies)
   const [filter, setFilter] = useState<DiscrepancyType | 'all'>('all')
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -84,8 +85,15 @@ export function DiscrepancyTable({ discrepancies }: DiscrepancyTableProps) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  useEffect(() => {
+    setRows(discrepancies)
+    setSelected(new Set())
+    setExpanded(new Set())
+    setPage(1)
+  }, [discrepancies])
+
   const filtered =
-    filter === 'all' ? discrepancies : discrepancies.filter((d) => d.type === filter)
+    filter === 'all' ? rows : rows.filter((d) => d.type === filter)
   const totalPages = Math.max(Math.ceil(filtered.length / pageSize), 1)
   const safePage = Math.min(page, totalPages)
   const start = (safePage - 1) * pageSize
@@ -118,7 +126,7 @@ export function DiscrepancyTable({ discrepancies }: DiscrepancyTableProps) {
     })
   }
 
-  const activeTypes = new Set(discrepancies.map((d) => d.type))
+  const activeTypes = new Set(rows.map((d) => d.type))
 
   function handleExport() {
     exportToCsv(
@@ -170,7 +178,36 @@ export function DiscrepancyTable({ discrepancies }: DiscrepancyTableProps) {
       })
       const json = await response.json()
       if (!response.ok) throw new Error(json.error ?? 'Workflow update failed')
-      window.location.reload()
+      const selectedIds = new Set(selected)
+      setRows((current) =>
+        current.map((row) => {
+          if (!selectedIds.has(row.id)) return row
+          if (action === 'assign') {
+            return {
+              ...row,
+              assignedTo,
+              assignmentNote,
+              dueAt: dueAt || null,
+              status: 'in_review',
+            }
+          }
+          if (action === 'review') {
+            return { ...row, status: 'in_review' }
+          }
+          return {
+            ...row,
+            status: 'resolved',
+            resolutionType,
+            resolutionComment,
+            resolvedAt: new Date().toISOString(),
+          }
+        })
+      )
+      setSelected(new Set())
+      setAssignedTo('')
+      setAssignmentNote('')
+      setDueAt('')
+      setResolutionComment('')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Workflow update failed')
     } finally {

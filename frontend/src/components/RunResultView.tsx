@@ -8,7 +8,7 @@ import { ProductBreakdown } from './ProductBreakdown'
 import { BarList, DonutChart, currencyFormatter } from './OperationalCharts'
 import { cn } from '@/lib/utils'
 import type { ReconciliationResult } from '@/types'
-import { Link as LinkIcon, Printer } from 'lucide-react'
+import { ArrowRight, CheckCircle2, Inbox, Link as LinkIcon, Printer, Sparkles } from 'lucide-react'
 
 type ResultTab = 'merchants' | 'discrepancies' | 'products'
 
@@ -24,6 +24,8 @@ export function RunResultView({ result, ranAt, chargesFilename, invoicesFilename
   const totalMatched = result.exactMatches + result.fuzzyMatches
   const matchBase = Math.max(result.totalChargesRecords, result.totalInvoicesRecords, 1)
   const matchRate = Math.round((totalMatched / matchBase) * 100)
+  const assignedCount = result.discrepancies.filter((discrepancy) => discrepancy.assignedTo && discrepancy.status !== 'resolved').length
+  const resolvedCount = result.discrepancies.filter((discrepancy) => discrepancy.status === 'resolved').length
   const issueMix = Object.entries(
     result.discrepancies.reduce<Record<string, number>>((acc, discrepancy) => {
       acc[discrepancy.type] = (acc[discrepancy.type] ?? 0) + 1
@@ -101,6 +103,52 @@ export function RunResultView({ result, ranAt, chargesFilename, invoicesFilename
       </div>
 
       <SummaryCards result={result} />
+
+      {result.discrepancyCount > 0 && (
+        <div className="glass rounded-xl p-4 print:hidden">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Exception workflow</p>
+              <p className="mt-1 text-xs text-gray-400">
+                Assign issues, work them from Queue, approve suggested fixes, then track recovered revenue.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full bg-red-100 px-2.5 py-1 text-xs font-bold text-red-700">
+                {assignedCount} assigned
+              </span>
+              <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-bold text-emerald-700">
+                {resolvedCount} resolved
+              </span>
+            </div>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-4">
+            <button
+              onClick={() => setActiveTab('discrepancies')}
+              className="rounded-lg bg-white/55 p-3 text-left transition-colors hover:bg-white/75"
+            >
+              <CheckCircle2 className="mb-2 h-4 w-4 text-blue-600" />
+              <p className="text-sm font-semibold text-gray-900">1. Assign issues</p>
+              <p className="mt-1 text-xs leading-relaxed text-gray-500">Use the Issues tab, select rows, then assign an owner and due date.</p>
+            </button>
+            <a href="/queue" className="rounded-lg bg-white/55 p-3 transition-colors hover:bg-white/75">
+              <Inbox className="mb-2 h-4 w-4 text-red-600" />
+              <p className="text-sm font-semibold text-gray-900">2. Work Queue</p>
+              <p className="mt-1 text-xs leading-relaxed text-gray-500">Assigned items land here with a red badge in the top nav.</p>
+            </a>
+            <a href="/resolutions" className="rounded-lg bg-white/55 p-3 transition-colors hover:bg-white/75">
+              <Sparkles className="mb-2 h-4 w-4 text-violet-600" />
+              <p className="text-sm font-semibold text-gray-900">3. Approve fixes</p>
+              <p className="mt-1 text-xs leading-relaxed text-gray-500">Review generated actions and approve recoveries in bulk.</p>
+            </a>
+            <a href="/scorecard" className="rounded-lg bg-white/55 p-3 transition-colors hover:bg-white/75">
+              <ArrowRight className="mb-2 h-4 w-4 text-emerald-600" />
+              <p className="text-sm font-semibold text-gray-900">4. Track impact</p>
+              <p className="mt-1 text-xs leading-relaxed text-gray-500">Recovered revenue and reversals roll into the scorecard.</p>
+            </a>
+          </div>
+        </div>
+      )}
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_410px]">
         <div className="min-w-0 space-y-5">

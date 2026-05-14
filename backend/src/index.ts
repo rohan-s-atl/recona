@@ -1,7 +1,6 @@
 import './env'
 import express from 'express'
 import cors from 'cors'
-import { uploadRouter } from './routes/upload'
 import { reconcileRouter } from './routes/reconcile'
 import { queueAvailable } from './queue'
 
@@ -20,7 +19,6 @@ app.get('/health', (_req, res) =>
     },
   })
 )
-app.use('/api/upload', uploadRouter)
 app.use('/api/reconcile', reconcileRouter)
 
 app.listen(PORT, () => {

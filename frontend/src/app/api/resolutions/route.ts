@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCurrentUserLabel, getDataScope, hasRole } from '@/lib/auth'
-import { approveResolutionSuggestions, getResolutionSuggestions } from '@/lib/db'
+import { approveResolutionSuggestions, createMissingResolutionSuggestions, getResolutionSuggestions } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,7 +13,11 @@ export async function PATCH(request: NextRequest) {
   if (!(await hasRole('analyst'))) {
     return NextResponse.json({ error: 'Analyst access required' }, { status: 403 })
   }
-  const body = (await request.json()) as { ids?: string[]; action?: 'approve' }
+  const body = (await request.json()) as { ids?: string[]; action?: 'approve' | 'generate_missing' }
+  if (body.action === 'generate_missing') {
+    const created = await createMissingResolutionSuggestions(getDataScope())
+    return NextResponse.json({ created })
+  }
   if (body.action !== 'approve' || !body.ids?.length) {
     return NextResponse.json({ error: 'ids and approve action are required' }, { status: 400 })
   }

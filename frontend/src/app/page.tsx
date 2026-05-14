@@ -1,17 +1,28 @@
 import Link from 'next/link'
-import { getRuns, getUsageSummary } from '@/lib/db'
+import {
+  getReconciliationSchedules,
+  getRecoveryScorecard,
+  getRuns,
+  getUsageSummary,
+  getWorkflowAnalytics,
+  getWorkflowNavCounts,
+} from '@/lib/db'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { formatCurrency } from '@/lib/utils'
-import { getDataScope } from '@/lib/auth'
+import { getCurrentUserLabel, getDataScope } from '@/lib/auth'
 import { DonutChart, currencyFormatter } from '@/components/OperationalCharts'
 import {
   Activity,
   AlertTriangle,
   ArrowRight,
+  BadgeDollarSign,
+  CalendarCheck,
   Clock,
   Database,
   FileText,
+  Inbox,
   ShieldCheck,
+  Sparkles,
   Target,
   TrendingDown,
 } from 'lucide-react'
@@ -21,9 +32,24 @@ export const dynamic = 'force-dynamic'
 export default async function HomePage() {
   const configured = isSupabaseConfigured()
   const scope = getDataScope()
-  const [runs, usage] = configured
-    ? await Promise.all([getRuns(8, scope), getUsageSummary(scope)])
-    : [[], null]
+  const currentUser = await getCurrentUserLabel()
+  const [runs, usage, workflow, navCounts, schedules, scorecard] = configured
+    ? await Promise.all([
+        getRuns(8, scope),
+        getUsageSummary(scope),
+        getWorkflowAnalytics(scope),
+        getWorkflowNavCounts({ scope, assignedTo: currentUser }),
+        getReconciliationSchedules(scope),
+        getRecoveryScorecard(scope),
+      ])
+    : [
+        [],
+        null,
+        { open: 0, inReview: 0, resolved: 0, overdue: 0, resolutionRate: 0, totalAtRisk: 0, recovered: 0 },
+        { queue: 0, pendingResolutions: 0 },
+        [],
+        { totalUnderbilledRecovered: 0, totalOverbillingReversed: 0 },
+      ]
 
   const totalRuns = runs.length
   const totalAtRisk = runs.reduce((s, r) => s + Number(r.total_amount_at_risk), 0)
@@ -45,6 +71,9 @@ export default async function HomePage() {
   const reviewedRows = Math.max(totalRecords, 1)
   const reviewCoverage = Math.min(100, Math.round((totalMatches / reviewedRows) * 100))
   const leakageShare = totalAtRisk > 0 ? Math.round((totalUnderbilled / totalAtRisk) * 100) : 0
+  const recoveryTotal =
+    Number(scorecard.totalUnderbilledRecovered ?? 0) + Number(scorecard.totalOverbillingReversed ?? 0)
+  const activeSchedules = schedules.filter((schedule) => schedule.enabled).length
 
   return (
     <main className="mx-auto max-w-[1800px] px-6 py-5 lg:px-10">
@@ -112,6 +141,77 @@ export default async function HomePage() {
           </div>
         ))}
       </div>
+
+      {runs.length > 0 && (
+        <div className="mb-4 glass rounded-xl p-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-gray-900">Today&apos;s work</p>
+              <p className="mt-1 text-xs text-gray-400">
+                The fastest path from discrepancy discovery to recovered revenue.
+              </p>
+            </div>
+            <Link
+              href="/upload"
+              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-500/20 transition-colors hover:bg-blue-700"
+            >
+              Run another check
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              {
+                href: '/queue',
+                label: 'Work assigned issues',
+                value: navCounts.queue.toString(),
+                sub: workflow.overdue > 0 ? `${workflow.overdue} overdue across workflow` : 'Assigned exceptions ready for review',
+                icon: Inbox,
+                tone: navCounts.queue > 0 ? 'text-red-600 bg-red-500/10' : 'text-emerald-600 bg-emerald-500/10',
+              },
+              {
+                href: '/resolutions',
+                label: 'Approve suggested fixes',
+                value: navCounts.pendingResolutions.toString(),
+                sub: 'Moves resolved items into the scorecard',
+                icon: Sparkles,
+                tone: navCounts.pendingResolutions > 0 ? 'text-red-600 bg-red-500/10' : 'text-violet-600 bg-violet-500/10',
+              },
+              {
+                href: '/automation',
+                label: 'Automation status',
+                value: activeSchedules.toString(),
+                sub: activeSchedules === 1 ? 'Active schedule' : 'Active schedules',
+                icon: CalendarCheck,
+                tone: activeSchedules > 0 ? 'text-blue-600 bg-blue-500/10' : 'text-amber-600 bg-amber-500/10',
+              },
+              {
+                href: '/scorecard',
+                label: 'Recovered impact',
+                value: formatCurrency(recoveryTotal),
+                sub: `${workflow.resolutionRate}% resolution close rate`,
+                icon: BadgeDollarSign,
+                tone: 'text-emerald-600 bg-emerald-500/10',
+              },
+            ].map(({ href, label, value, sub, icon: Icon, tone }) => (
+              <Link
+                key={label}
+                href={href}
+                className="group flex items-start gap-3 rounded-lg bg-white/45 p-3 transition-colors hover:bg-white/75"
+              >
+                <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${tone}`}>
+                  <Icon className="h-4 w-4" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-xs font-semibold uppercase tracking-wide text-gray-400">{label}</span>
+                  <span className="mt-1 block text-xl font-bold tracking-tight text-gray-900">{value}</span>
+                  <span className="mt-1 block text-xs leading-relaxed text-gray-500">{sub}</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1fr)_420px]">
         <div className="space-y-4">

@@ -68,7 +68,8 @@ export async function POST(request: NextRequest) {
             name: file.name,
             filename: file.name,
             parsed,
-            retentionDays: 1,
+            mapping: { ...suggestedMapping },
+            retentionDays: 90,
           })
         : null
     const fileId = snapshot?.id ?? uuidv4()

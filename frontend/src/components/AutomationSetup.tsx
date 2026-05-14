@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import type { ReconciliationCadence } from '@/types'
 
 interface SnapshotOption {
@@ -13,6 +14,7 @@ interface SnapshotOption {
 }
 
 export function AutomationSetup({ snapshots }: { snapshots: SnapshotOption[] }) {
+  const router = useRouter()
   const [name, setName] = useState('Monthly billing reconciliation')
   const [cadence, setCadence] = useState<ReconciliationCadence>('monthly')
   const [chargesSnapshotId, setChargesSnapshotId] = useState('')
@@ -46,7 +48,7 @@ export function AutomationSetup({ snapshots }: { snapshots: SnapshotOption[] }) 
     })
     const json = await response.json()
     setStatus(response.ok ? `Schedule created: ${json.name}` : json.error ?? 'Unable to create schedule')
-    if (response.ok) window.location.reload()
+    if (response.ok) router.refresh()
   }
 
   return (

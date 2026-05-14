@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
         headers: snapshotRows.length > 0 ? Object.keys(snapshotRows[0]) : [],
         rows: snapshotRows,
       },
-      retentionDays: 1,
+      retentionDays: 90,
     })
     const fileId = snapshot?.id ?? uuidv4()
     storeFeeSchedule(fileId, { filename: file.name, records })

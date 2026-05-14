@@ -4,10 +4,7 @@ import { useState } from 'react'
 import { FileDropzone } from '@/components/FileDropzone'
 import { DataPreview } from '@/components/DataPreview'
 import { ColumnMapper } from '@/components/ColumnMapper'
-import { SummaryCards } from '@/components/SummaryCards'
-import { DiscrepancyTable } from '@/components/DiscrepancyTable'
-import { ProductBreakdown } from '@/components/ProductBreakdown'
-import { MerchantTable } from '@/components/MerchantTable'
+import { RunResultView } from '@/components/RunResultView'
 import {
   ColumnMapping,
   FeeScheduleUploadResponse,
@@ -25,7 +22,6 @@ import {
 import { cn, formatBytes } from '@/lib/utils'
 
 type Step = 'upload' | 'mapping' | 'running' | 'results'
-type ResultTab = 'merchants' | 'discrepancies' | 'products'
 type ReconcilePhase = 'parsing' | 'exact_match' | 'fuzzy_match' | 'rate_check' | 'summary' | 'saving'
 
 interface QueuedStatus {
@@ -103,7 +99,6 @@ export default function UploadPage() {
   const [runError, setRunError] = useState<string | null>(null)
   const [isRunning, setIsRunning] = useState(false)
   const [progress, setProgress] = useState<ProgressState | null>(null)
-  const [activeTab, setActiveTab] = useState<ResultTab>('merchants')
 
   // ── File upload handlers ───────────────────────────────────────────────────
 
@@ -279,7 +274,6 @@ export default function UploadPage() {
     setResult(null)
     setRunError(null)
     setProgress(null)
-    setActiveTab('merchants')
   }
 
   const currentStepIdx = STEPS.findIndex((s) => s.id === step)
@@ -540,19 +534,14 @@ export default function UploadPage() {
       {/* ── Step 4: Results ── */}
       {step === 'results' && result && (
         <div className="space-y-8">
-          <div className="flex items-start justify-between">
+          <div className="flex flex-wrap items-start justify-between gap-4 print:hidden">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Reconciliation complete</h1>
-              <p className="text-xs text-gray-400 mt-1">
-                Run {result.runId.substring(0, 8)} - {new Date(result.ranAt).toLocaleString()}
-                {result.hasFeeSchedule && (
-                  <span className="ml-2 bg-green-100 text-green-700 text-xs font-semibold px-2 py-0.5 rounded-full">
-                    Rate check active
-                  </span>
-                )}
+              <p className="mt-1 text-sm text-gray-500">
+                Review the summary, assign exceptions, then approve fixes from the resolutions desk.
               </p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               {result.persisted && (
                 <a
                   href={`/runs/${result.runId}`}
@@ -574,53 +563,12 @@ export default function UploadPage() {
               </button>
             </div>
           </div>
-
-          <SummaryCards result={result} />
-
-          {result.aiSummary && (
-            <div className="glass rounded-2xl p-6 border-blue-200/40">
-              <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide mb-3">
-                AI Executive Summary
-              </p>
-              <p className="text-sm text-gray-700 leading-relaxed">{result.aiSummary}</p>
-            </div>
-          )}
-
-          {/* Tab navigation */}
-          <div className="flex items-center gap-1 border-b border-white/60">
-            {(
-              [
-                { id: 'merchants' as ResultTab, label: `By Merchant (${result.merchantSummaries.length})` },
-                { id: 'discrepancies' as ResultTab, label: `All Issues (${result.discrepancyCount})` },
-                { id: 'products' as ResultTab, label: `By Product Line (${result.productLineSummaries.length})` },
-              ] as const
-            ).map(({ id, label }) => (
-              <button
-                key={id}
-                onClick={() => setActiveTab(id)}
-                className={cn(
-                  'px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors',
-                  activeTab === id
-                    ? 'border-blue-600 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-800'
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {activeTab === 'merchants' && (
-            <MerchantTable summaries={result.merchantSummaries} />
-          )}
-
-          {activeTab === 'discrepancies' && (
-            <DiscrepancyTable discrepancies={result.discrepancies} />
-          )}
-
-          {activeTab === 'products' && (
-            <ProductBreakdown summaries={result.productLineSummaries} />
-          )}
+          <RunResultView
+            result={result}
+            ranAt={result.ranAt}
+            chargesFilename={charges.response?.filename ?? charges.file?.name ?? 'Charges file'}
+            invoicesFilename={invoices.response?.filename ?? invoices.file?.name ?? 'Invoices file'}
+          />
         </div>
       )}
     </main>

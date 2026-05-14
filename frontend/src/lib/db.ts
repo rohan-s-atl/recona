@@ -1169,6 +1169,54 @@ export async function getResolutionSuggestions(scope: DataScope = {}, limit = 20
   return (data ?? []) as ResolutionSuggestion[]
 }
 
+export async function createMissingResolutionSuggestions(scope: DataScope = {}): Promise<number> {
+  const runs = await getRuns(500, scope)
+  let created = 0
+  for (const run of runs) {
+    if (run.discrepancy_count === 0) continue
+    created += await createResolutionSuggestionsForRun(run.id, scope)
+  }
+  return created
+}
+
+export async function getWorkflowNavCounts(input: {
+  scope?: DataScope
+  assignedTo?: string | null
+} = {}): Promise<{ queue: number; pendingResolutions: number }> {
+  const db = getSupabaseClient()
+  if (!db) return { queue: 0, pendingResolutions: 0 }
+
+  const assignedQuery = input.assignedTo
+    ? withQueryTimeout(
+        applyScope(
+          db
+            .from('discrepancies')
+            .select('id', { count: 'exact', head: true })
+            .eq('assigned_to', input.assignedTo)
+            .neq('status', 'resolved'),
+          input.scope ?? {}
+        )
+      )
+    : Promise.resolve({ count: 0, error: null })
+  const suggestionsQuery = withQueryTimeout(
+    applyScope(
+      db
+        .from('resolution_suggestions')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending'),
+      input.scope ?? {}
+    )
+  )
+  const [assigned, suggestions] = await Promise.all([assignedQuery, suggestionsQuery])
+  if (assigned.error || suggestions.error) {
+    console.error('[db] getWorkflowNavCounts failed:', assigned.error ?? suggestions.error)
+  }
+  return {
+    queue: assigned.count ?? 0,
+    pendingResolutions: suggestions.count ?? 0,
+  }
+}
+
 export async function approveResolutionSuggestions(input: {
   ids: string[]
   actorId?: string | null
