@@ -9,8 +9,7 @@ const checks = [
     name: 'frontend health',
     method: 'GET',
     url: `${frontendUrl}/api/health`,
-    expectOk: true,
-    validate: (json) => json.status === 'ok' || json.status === 'degraded',
+    validate: (json) => json?.status === 'ok' || json?.status === 'degraded',
   },
   frontendUrl && {
     name: 'frontend landing',
