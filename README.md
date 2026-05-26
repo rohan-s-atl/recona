@@ -6,6 +6,8 @@ Recona compares what was contracted, what was charged, and what was billed. It t
 
 Recona is designed for finance, billing, product operations, and middle-office teams that need a clearer way to reconcile operational data without living in spreadsheets. It combines deterministic matching, AI-assisted mapping, workflow tracking, audit history, and recovery reporting into one system.
 
+<p align="right"><strong>Recona:</strong> https://recona-ai.vercel.app/</p>
+
 ## Why Recona
 
 Billing reconciliation is often scattered across exports, spreadsheet formulas, manual lookups, and one-off reviews. That makes it difficult to see where revenue is leaking, which discrepancies are still open, who owns each exception, and how much value has actually been recovered.
@@ -149,11 +151,3 @@ Worker
 ### Data And Control Layer
 
 Recona stores reconciliation runs, source snapshots, discrepancies, workflow updates, approvals, exports, and audit events in Supabase. Clerk scopes access by user and organization. Protected internal routes use shared-secret checks for cron and worker traffic. Queue-backed reconciliation uses Railway, BullMQ, and Redis for background processing while the Next.js API routes provide upload, reporting, analytics, workflow, scheduling, sharing, and AI-assisted interaction endpoints.
-
-## Links
-
-- Live app: https://recona-ai.vercel.app/
-- Repository: https://github.com/rohan-s-atl/recona
-- Roadmap: [docs/ROADMAP.md](docs/ROADMAP.md)
-- Schema: [docs/schema.sql](docs/schema.sql)
-- Demo data: [docs/test-data](docs/test-data)
