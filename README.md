@@ -6,7 +6,9 @@ Recona compares what was contracted, what was charged, and what was billed. It t
 
 Recona is designed for finance, billing, product operations, and middle-office teams that need a clearer way to reconcile operational data without living in spreadsheets. It combines deterministic matching, AI-assisted mapping, workflow tracking, audit history, and recovery reporting into one system.
 
-<p align="right"><strong>Recona:</strong> https://recona-ai.vercel.app/</p>
+## Links
+
+Recona: https://recona-ai.vercel.app/
 
 ## Why Recona
 
