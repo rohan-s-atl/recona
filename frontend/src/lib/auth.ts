@@ -4,6 +4,15 @@ export type UserRole = 'admin' | 'analyst' | 'viewer'
 
 const ROLE_LEVELS: Record<UserRole, number> = { viewer: 0, analyst: 1, admin: 2 }
 const AUTH_TIMEOUT_MS = 2000
+const hasClerkKeys = Boolean(
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY
+)
+const LOCAL_ADMIN_ID = 'local-admin'
+const LOCAL_ORG_ID = 'local-preview'
+
+function shouldUseClerk(): boolean {
+  return hasClerkKeys || process.env.NODE_ENV === 'production'
+}
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs = AUTH_TIMEOUT_MS): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined
@@ -19,6 +28,8 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs = AUTH_TIMEOUT_MS):
 }
 
 export function getCurrentAuth(): { userId: string | null; orgId: string | null } {
+  if (!shouldUseClerk()) return { userId: LOCAL_ADMIN_ID, orgId: LOCAL_ORG_ID }
+
   try {
     const { userId, orgId } = auth()
     return { userId: userId ?? null, orgId: orgId ?? null }
@@ -36,6 +47,8 @@ export function getDataScope(): { userId?: string; orgId?: string } {
 }
 
 export async function getUserRole(): Promise<UserRole> {
+  if (!shouldUseClerk()) return 'admin'
+
   try {
     const user = await withTimeout(currentUser())
     if (!user) return 'viewer'
@@ -49,6 +62,8 @@ export async function getUserRole(): Promise<UserRole> {
 }
 
 export async function getCurrentUserLabel(): Promise<string | null> {
+  if (!shouldUseClerk()) return 'Local admin'
+
   try {
     const user = await withTimeout(currentUser())
     if (!user) return getCurrentAuth().userId

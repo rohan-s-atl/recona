@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
-import { hasRole } from '@/lib/auth'
+import { getCurrentAuth, hasRole } from '@/lib/auth'
 import { saveRun } from '@/lib/db'
 import { checkRateLimit, getClientIp, rateLimitHeaders } from '@/lib/rateLimit'
 import { runReconciliationEngine } from '@/lib/reconcileEngine'
@@ -14,7 +13,7 @@ export async function POST(request: NextRequest) {
     return Response.json({ error: 'Analyst access required' }, { status: 403 })
   }
 
-  const { userId, orgId } = auth()
+  const { userId, orgId } = getCurrentAuth()
   const body: ReconcileApiRequest = await request.json()
   const ipAddress = getClientIp(request.headers)
   const rate = checkRateLimit(`reconcile:${orgId ?? userId ?? ipAddress}`, 10, 60 * 60 * 1000)

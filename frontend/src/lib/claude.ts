@@ -2,10 +2,12 @@ import Anthropic from '@anthropic-ai/sdk'
 import { ColumnMapping, NormalizedRecord } from '@/types'
 import { logAiAudit } from './db'
 
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
-
 const FAST_MODEL = 'claude-haiku-4-5-20251001'
 const SMART_MODEL = 'claude-sonnet-4-6'
+
+function getClient(): Anthropic {
+  return new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+}
 
 function logAiCall(event: string, data: Record<string, unknown>) {
   console.info('[ai]', JSON.stringify({ event, at: new Date().toISOString(), ...data }))
@@ -17,6 +19,8 @@ export async function inferColumnMapping(
   headers: string[],
   sampleRows: Record<string, string>[]
 ): Promise<ColumnMapping> {
+  if (!process.env.ANTHROPIC_API_KEY) return inferColumnMappingFromHeaders(headers)
+
   const sample = sampleRows.slice(0, 5)
 
   const prompt = `You are analyzing a financial billing data file for a payment processing company (similar to Fiserv, Square, or Stripe).
@@ -45,7 +49,7 @@ Respond with ONLY valid JSON, no explanation:
 {"record_id":null,"client_id":"...","client_name":"...","product_line":"...","product_name":"...","fee_type":"...","amount":"...","billing_period":"...","date":"...","transaction_volume":null,"account_status":null}`
 
   const startedAt = Date.now()
-  const response = await client.messages.create({
+  const response = await getClient().messages.create({
     model: FAST_MODEL,
     max_tokens: 512,
     messages: [{ role: 'user', content: prompt }],
@@ -121,6 +125,7 @@ export async function batchFuzzyMatch(
   candidates: FuzzyCandidate[]
 ): Promise<FuzzyDecision[]> {
   if (candidates.length === 0) return []
+  if (!process.env.ANTHROPIC_API_KEY) return candidates.map(deterministicFuzzyMatch)
 
   const pairs = candidates.map((c, i) => ({
     index: i,
@@ -165,7 +170,7 @@ Confidence scale:
 < 0.5 = probably different`
 
   const startedAt = Date.now()
-  const response = await client.messages.create({
+  const response = await getClient().messages.create({
     model: FAST_MODEL,
     max_tokens: 2048,
     messages: [{ role: 'user', content: prompt }],
@@ -230,6 +235,8 @@ export interface SummaryInput {
 }
 
 export async function generateExecutiveSummary(data: SummaryInput): Promise<string> {
+  if (!process.env.ANTHROPIC_API_KEY) return deterministicExecutiveSummary(data)
+
   const prompt = `You are a financial operations analyst writing a concise executive summary for a billing reconciliation report at a payment processing company (like Fiserv or Square).
 
 Write 4–6 sentences. Be direct, specific, and quantified. Focus on what the finance team must act on first.
@@ -251,7 +258,7 @@ Reconciliation data:
 Write 4–6 sentences only. No bullet points. No headers.`
 
   const startedAt = Date.now()
-  const response = await client.messages.create({
+  const response = await getClient().messages.create({
     model: SMART_MODEL,
     max_tokens: 512,
     messages: [{ role: 'user', content: prompt }],
@@ -274,4 +281,64 @@ Write 4–6 sentences only. No bullet points. No headers.`
   })
 
   return response.content[0].type === 'text' ? response.content[0].text.trim() : ''
+}
+
+function inferColumnMappingFromHeaders(headers: string[]): ColumnMapping {
+  const normalized = new Map(
+    headers.map((header) => [header.toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''), header])
+  )
+  const find = (...aliases: string[]): string | null => {
+    for (const alias of aliases) {
+      const header = normalized.get(alias)
+      if (header) return header
+    }
+    return null
+  }
+
+  return {
+    record_id: find('record_id', 'charge_id', 'invoice_id', 'transaction_id', 'id'),
+    client_id: find('client_id', 'merchant_id', 'merchant_mid', 'mid', 'account_id', 'customer_id'),
+    client_name: find('client_name', 'merchant_name', 'merchant_dba', 'dba', 'account_name', 'customer_name'),
+    product_line: find('product_line', 'product_family', 'service_line'),
+    product_name: find('product_name', 'product_description', 'plan_name', 'service_name', 'product'),
+    fee_type: find('fee_type', 'fee_category', 'charge_type', 'fee_name'),
+    amount: find('amount', 'billed_amount', 'charge_amount', 'invoice_amount', 'total'),
+    billing_period: find('billing_period', 'billing_month', 'statement_period', 'invoice_period'),
+    date: find('date', 'invoice_date', 'charge_date', 'transaction_date', 'billing_date'),
+    transaction_volume: find('transaction_volume', 'gross_volume', 'processing_volume', 'volume'),
+    account_status: find('account_status', 'merchant_status', 'status'),
+  }
+}
+
+function deterministicFuzzyMatch(candidate: FuzzyCandidate): FuzzyDecision {
+  const normalize = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, '')
+  const charge = candidate.charge
+  const invoice = candidate.invoice
+  const sameMerchant = Boolean(charge.client_id && charge.client_id === invoice.client_id)
+  const samePeriod = charge.billing_period.substring(0, 7) === invoice.billing_period.substring(0, 7)
+  const chargeProduct = normalize(charge.product_name || charge.product_line)
+  const invoiceProduct = normalize(invoice.product_name || invoice.product_line)
+  const similarProduct = Boolean(
+    chargeProduct && invoiceProduct &&
+    (chargeProduct === invoiceProduct || chargeProduct.includes(invoiceProduct) || invoiceProduct.includes(chargeProduct))
+  )
+  const isMatch = sameMerchant && samePeriod && similarProduct
+
+  return {
+    isMatch,
+    confidence: isMatch ? 0.9 : 0,
+    reason: isMatch
+      ? 'Matched locally using merchant ID, billing period, and normalized product name.'
+      : 'No deterministic local match found.',
+  }
+}
+
+function deterministicExecutiveSummary(data: SummaryInput): string {
+  const topType = Object.entries(data.topDiscrepancyTypes).sort(([, a], [, b]) => b - a)[0]?.[0]
+  const issueLead = topType ? ` The most common issue was ${topType.replaceAll('_', ' ')}.` : ''
+  const feeSchedule = data.hasFeeSchedule
+    ? ' Contracted rates were included in the review.'
+    : ' No fee schedule was included.'
+
+  return `Recona compared ${data.totalCharges.toLocaleString()} charge records against ${data.totalInvoices.toLocaleString()} invoice records. ${data.exactMatches.toLocaleString()} records matched exactly and ${data.fuzzyMatches.toLocaleString()} were matched using normalized identifiers. ${data.discrepancyCount.toLocaleString()} discrepancies represent $${data.totalAtRisk.toFixed(2)} in total exposure, including $${data.totalUnderbilled.toFixed(2)} underbilled and $${data.totalOverbilled.toFixed(2)} overbilled.${issueLead}${feeSchedule}`
 }

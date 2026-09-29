@@ -52,6 +52,7 @@ const PHASE_LABELS: Record<ReconcilePhase, string> = {
 }
 
 const QUEUE_ROW_THRESHOLD = 5000
+const QUEUE_ENABLED = Boolean(process.env.NEXT_PUBLIC_BACKEND_URL)
 
 function queuedStatusUrl(jobId: string): string {
   return `/api/runs/${jobId}/status`
@@ -275,7 +276,7 @@ export default function UploadPage() {
   const canProceed = !!charges.response && !!invoices.response && !charges.loading && !invoices.loading
   const totalUploadedRows = (charges.response?.rowsCount ?? charges.response?.sample.length ?? 0) +
     (invoices.response?.rowsCount ?? invoices.response?.sample.length ?? 0)
-  const shouldPreferQueue = totalUploadedRows >= QUEUE_ROW_THRESHOLD
+  const shouldPreferQueue = QUEUE_ENABLED && totalUploadedRows >= QUEUE_ROW_THRESHOLD
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -456,14 +457,16 @@ export default function UploadPage() {
               Back
             </button>
             <div className="flex items-center gap-3">
-              <button
-                onClick={runQueuedReconciliation}
-                disabled={isRunning}
-                className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm glass text-gray-700 hover:bg-white/70 transition-colors disabled:opacity-60"
-              >
-                {isRunning && <Loader2 className="w-4 h-4 animate-spin" />}
-                {shouldPreferQueue ? 'Run in background (recommended)' : 'Run in background'}
-              </button>
+              {QUEUE_ENABLED && (
+                <button
+                  onClick={runQueuedReconciliation}
+                  disabled={isRunning}
+                  className="flex items-center gap-2 px-5 py-3 rounded-xl font-semibold text-sm glass text-gray-700 hover:bg-white/70 transition-colors disabled:opacity-60"
+                >
+                  {isRunning && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {shouldPreferQueue ? 'Run in background (recommended)' : 'Run in background'}
+                </button>
+              )}
               <button
                 onClick={shouldPreferQueue ? runQueuedReconciliation : runReconciliation}
                 disabled={isRunning}

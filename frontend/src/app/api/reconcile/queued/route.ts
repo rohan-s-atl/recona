@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
-import { hasRole } from '@/lib/auth'
+import { getCurrentAuth, hasRole } from '@/lib/auth'
 import { checkRateLimit, getClientIp, rateLimitHeaders } from '@/lib/rateLimit'
 import type { ReconcileApiRequest } from '@/types'
 
@@ -18,7 +17,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Background queue backend is not configured' }, { status: 503 })
   }
 
-  const { userId, orgId } = auth()
+  const { userId, orgId } = getCurrentAuth()
   const ipAddress = getClientIp(request.headers)
   const rate = checkRateLimit(`reconcile-queued:${orgId ?? userId ?? ipAddress}`, 10, 60 * 60 * 1000)
   if (!rate.allowed) {
